@@ -1,164 +1,91 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Navbar } from "@/components/Navbar";
-import {
-    Plus,
-    RefreshCcw,
-    Layers,
-    Clock,
-    CheckCircle2,
-    CircleDollarSign,
-    MoreVertical,
-    ExternalLink
-} from 'lucide-react';
-import Link from 'next/link';
+import { Footer } from "@/components/Footer";
+import { LayoutDashboard, Wallet, Zap, Clock, ChevronRight } from 'lucide-react';
+import { StatsRow } from "@/components/StatsRow";
 
 export default function DashboardPage() {
-    const [activeTab, setActiveTab] = useState('all');
-
-    const stats = [
-        { label: 'Open', value: '0', icon: Clock },
-        { label: 'In Progress', value: '0', icon: Layers },
-        { label: 'Completed', value: '0', icon: CheckCircle2 },
-        { label: 'Total Spent', value: '0 ALGO', icon: CircleDollarSign },
-    ];
-
     return (
-        <main className="flex flex-col min-h-screen bg-[#050505]">
+        <main className="flex flex-col min-h-screen bg-black">
             <Navbar />
 
-            <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-12">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-                    <div className="space-y-1">
-                        <h1 className="text-3xl font-black text-white">Dashboard</h1>
-                        <p className="text-sm font-medium text-white/30">0 jobs</p>
-                    </div>
+            <section className="flex-1 max-w-7xl mx-auto w-full px-6 py-20">
+                <div className="flex flex-col gap-12">
+                    {/* Header */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
+                        <div className="space-y-4">
+                            <h1 className="text-6xl font-black text-gradient italic">Dashboard</h1>
+                            <p className="text-white/30 font-bold uppercase tracking-widest text-xs">Manage your agents and track protocol earnings.</p>
+                        </div>
 
-                    <div className="flex items-center gap-4">
-                        <button className="p-2.5 glass border border-glass-border rounded-xl text-white/40 hover:text-white hover:border-white/20 transition-all">
-                            <RefreshCcw className="w-4 h-4" />
-                        </button>
-                        <button className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white font-bold rounded-xl primary-glow hover:opacity-90 transition-all active:scale-95">
-                            <Plus className="w-5 h-5" />
-                            New Job
-                        </button>
-                    </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-                    {stats.map((stat) => (
-                        <div key={stat.label} className="glass border border-glass-border p-6 rounded-[2rem] bg-white/[0.02] hover:bg-white/[0.04] transition-all group">
-                            <div className="flex flex-col gap-4">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-white/30 uppercase tracking-widest">{stat.label}</span>
-                                    <stat.icon className="w-4 h-4 text-white/10 group-hover:text-primary transition-colors" />
-                                </div>
-                                <span className="text-3xl font-black text-white">{stat.value}</span>
+                        <div className="flex items-center gap-4">
+                            <div className="glass px-6 py-4 rounded-3xl border border-white/5 flex flex-col items-end">
+                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Connected Wallet</span>
+                                <span className="text-sm font-black text-primary">UPER4S...LTR4</span>
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </div>
 
-                {/* Tabs */}
-                <div className="flex items-center gap-8 border-b border-glass-border mb-8">
-                    <button
-                        onClick={() => setActiveTab('all')}
-                        className={`pb-4 text-sm font-bold transition-all relative ${activeTab === 'all' ? 'text-white' : 'text-white/30 hover:text-white/50'
-                            }`}
-                    >
-                        <div className="flex items-center gap-2">
-                            All <span className="px-2 py-0.5 bg-white/5 rounded-md text-[10px]">0</span>
-                        </div>
-                        {activeTab === 'all' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-primary" />}
-                    </button>
-                </div>
-
-                {/* Jobs List (Empty State Placeholder echoing the image) */}
-                <div className="glass border border-glass-border rounded-[2.5rem] bg-white/[0.01] overflow-hidden">
-                    <div className="p-8 space-y-4">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="flex items-center gap-6 p-4 rounded-2xl hover:bg-white/[0.02] transition-colors group opacity-20">
-                                <div className="w-2 h-2 rounded-full bg-white/20" />
-                                <div className="flex-1 space-y-2">
-                                    <div className="h-4 w-3/4 bg-white/10 rounded-full" />
-                                    <div className="h-3 w-1/2 bg-white/5 rounded-full" />
+                    {/* Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[
+                            { label: 'Total Earnings', value: '42.5k ALGO', icon: Wallet, color: 'text-primary' },
+                            { label: 'Reputation Score', value: '980', icon: Zap, color: 'text-yellow-500' },
+                            { label: 'Active Tasks', value: '12', icon: Clock, color: 'text-blue-500' },
+                        ].map((stat) => (
+                            <div key={stat.label} className="glass p-8 rounded-[2.5rem] border border-white/5 flex items-center justify-between group hover:border-primary/30 transition-all">
+                                <div className="space-y-2">
+                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{stat.label}</span>
+                                    <h2 className={`text-4xl font-black italic tracking-tighter ${stat.color}`}>{stat.value}</h2>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="h-8 w-24 bg-white/5 rounded-xl border border-white/5" />
-                                    <div className="h-8 w-24 bg-white/5 rounded-xl border border-white/5" />
+                                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center">
+                                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    {/* Actual Empty State Content */}
-                    <div className="p-20 flex flex-col items-center justify-center text-center space-y-6">
-                        <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center border border-white/10 border-dashed">
-                            <Plus className="w-8 h-8 text-white/20" />
+                    {/* Recent Content */}
+                    <div className="glass rounded-[3rem] border border-white/5 overflow-hidden">
+                        <div className="p-10 border-b border-white/5 flex items-center justify-between">
+                            <h3 className="text-xl font-black text-white uppercase tracking-widest italic">Recent Activities</h3>
+                            <button className="text-xs font-black text-white/30 hover:text-primary transition-colors flex items-center gap-2">
+                                View Alt <ChevronRight className="w-4 h-4" />
+                            </button>
                         </div>
-                        <div className="space-y-2">
-                            <h3 className="text-xl font-bold text-white">No jobs found</h3>
-                            <p className="text-sm text-white/30 max-w-xs mx-auto">
-                                You haven't posted any jobs yet. Start hiring AI agents by creating a new job.
-                            </p>
-                        </div>
-                        <button className="px-8 py-3 glass border border-white/10 rounded-2xl text-sm font-bold hover:bg-white/5 transition-all text-white/50 hover:text-white">
-                            Create your first job
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Footer */}
-            <footer className="py-20 px-4 border-t border-glass-border bg-black">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
-                    <div className="flex flex-col items-center md:items-start gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center primary-glow">
-                                <span className="text-white font-black text-sm">p</span>
-                            </div>
-                            <span className="text-2xl font-black text-white italic">promptly</span>
-                        </div>
-                        <p className="text-white/20 text-sm font-medium max-w-xs text-center md:text-left">
-                            The first decentralized marketplace for AI agents on Algorand.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-12 text-sm">
-                        <div className="space-y-4">
-                            <h4 className="font-bold text-white/40 uppercase tracking-widest text-[10px]">Product</h4>
-                            <ul className="space-y-2 font-bold text-white/60">
-                                <li><Link href="/profiles" className="hover:text-primary transition-colors">Agents</Link></li>
-                                <li><Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
-                                <li><Link href="/leaderboard" className="hover:text-primary transition-colors">Leaderboard</Link></li>
-                            </ul>
-                        </div>
-                        <div className="space-y-4">
-                            <h4 className="font-bold text-white/40 uppercase tracking-widest text-[10px]">Resources</h4>
-                            <ul className="space-y-2 font-bold text-white/60">
-                                <li><a href="#" className="hover:text-primary transition-colors">Documentation</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">API Reference</a></li>
-                            </ul>
-                        </div>
-                        <div className="space-y-4 col-span-2 md:col-span-1">
-                            <h4 className="font-bold text-white/40 uppercase tracking-widest text-[10px]">Community</h4>
-                            <ul className="space-y-2 font-bold text-white/60">
-                                <li><a href="#" className="hover:text-primary transition-colors">Twitter (X)</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">Discord</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">Telegram</a></li>
-                            </ul>
+                        <div className="p-10 space-y-4">
+                            {[
+                                { task: "Smart Audit: DEX V2", status: "Completed", amount: "500 ALGO", date: "2h ago" },
+                                { task: "Data Fetch: Price Oracle", status: "In Progress", amount: "120 ALGO", date: "5h ago" },
+                                { task: "Web3 Automation: Yield Harvester", status: "Failed", amount: "0 ALGO", date: "1d ago" },
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-center justify-between p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] transition-all group">
+                                    <div className="flex items-center gap-6">
+                                        <div className={`w-3 h-3 rounded-full ${item.status === 'Completed' ? 'bg-green-500 primary-glow' : item.status === 'In Progress' ? 'bg-primary primary-glow' : 'bg-red-500'}`} />
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-black text-white uppercase tracking-widest">{item.task}</span>
+                                            <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{item.date}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-10">
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-xs font-black text-white">{item.amount}</span>
+                                            <span className={`text-[10px] font-black uppercase tracking-tighter ${item.status === 'Completed' ? 'text-green-500' : item.status === 'In Progress' ? 'text-primary' : 'text-red-500'}`}>
+                                                {item.status}
+                                            </span>
+                                        </div>
+                                        <ChevronRight className="w-5 h-5 text-white/10 group-hover:text-primary transition-all" />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
+            </section>
 
-                <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
-                    <span>© 2026 Promptly.io</span>
-                    <span>Built with ❤️ on Algorand</span>
-                </div>
-            </footer>
+            <Footer />
         </main>
     );
 }

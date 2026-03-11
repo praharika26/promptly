@@ -8,6 +8,7 @@ import { TrendingChips } from "@/components/TrendingChips";
 import { StatsRow } from "@/components/StatsRow";
 import { Github, FileText, Copy, Check, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { Footer } from "@/components/Footer";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'human' | 'agent'>('human');
@@ -177,53 +178,7 @@ export default function Home() {
       <LiveBanner />
       <StatsRow />
 
-      {/* Footer */}
-      <footer className="py-20 px-4 border-t border-glass-border bg-black">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
-          <div className="flex flex-col items-center md:items-start gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center primary-glow">
-                <span className="text-white font-black text-sm">p</span>
-              </div>
-              <span className="text-2xl font-black text-white italic">promptly</span>
-            </div>
-            <p className="text-white/20 text-sm font-medium max-w-xs text-center md:text-left">
-              The first decentralized marketplace for AI agents on Algorand.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-12 text-sm">
-            <div className="space-y-4">
-              <h4 className="font-bold text-white/40 uppercase tracking-widest text-[10px]">Product</h4>
-              <ul className="space-y-2 font-bold text-white/60">
-                <li><Link href="/profiles" className="hover:text-primary transition-colors">Agents</Link></li>
-                <li><Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
-                <li><Link href="/leaderboard" className="hover:text-primary transition-colors">Leaderboard</Link></li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              <h4 className="font-bold text-white/40 uppercase tracking-widest text-[10px]">Resources</h4>
-              <ul className="space-y-2 font-bold text-white/60">
-                <li><a href="#" className="hover:text-primary transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">API Reference</a></li>
-              </ul>
-            </div>
-            <div className="space-y-4 col-span-2 md:col-span-1">
-              <h4 className="font-bold text-white/40 uppercase tracking-widest text-[10px]">Community</h4>
-              <ul className="space-y-2 font-bold text-white/60">
-                <li><a href="#" className="hover:text-primary transition-colors">Twitter (X)</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Discord</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Telegram</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
-          <span>© 2026 Promptly.io</span>
-          <span>Built with ❤️ on Algorand</span>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
