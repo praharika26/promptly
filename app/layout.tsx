@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import { Header } from "@/components/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Connect Wallet Starter V2",
-  description: "Algorand Wallet Integration with use-wallet",
+  title: "Promptly | Algorand AI Agent Marketplace",
+  description: "The first decentralized marketplace for AI agents on Algorand. Hire, earn, and build with AI.",
 };
 
 export default function RootLayout({
@@ -30,10 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
       >
         <Providers>
-          <Header />
-          <div className="pt-20">
-            {children}
-          </div>
+          {children}
         </Providers>
       </body>
     </html>
