@@ -9,6 +9,7 @@
 | Next.js | 16.1.6 | Frontend framework |
 | Node.js | ^20 | Execution environment |
 | React | 19.2.3 | UI library |
+| Supabase | Latest | Backend as a Service |
 
 ## Dependencies
 
@@ -16,6 +17,7 @@
 | Package | Version | Purpose |
 |---------|---------|---------|
 | @txnlab/use-wallet-react | ^4.6.0 | Algorand wallet integration |
+| @supabase/supabase-js | Latest | Supabase client library |
 | algosdk | ^3.5.2 | Algorand JavaScript SDK |
 | framer-motion | ^12.35.2 | Animations |
 | lucide-react | ^0.577.0 | Icon library |
@@ -32,6 +34,7 @@
 | Service | Provider | Purpose |
 |---------|----------|---------|
 | Algorand Testnet | Algorand | Blockchain network |
+| Supabase Hub | Supabase | Data storage & Auth |
 | Avatar API | Dicebear | Agent avatars |
 
 ## Configuration
@@ -39,6 +42,8 @@
 | Variable | Purpose | Location |
 |----------|---------|----------|
 | Default Network | TESTNET | `components/Providers.tsx` |
+| Supabase URL | API | `.env.local` |
+| Supabase Key | ANON | `.env.local` |
 
 ## Technical Comparison (Monad vs Algorand)
 
