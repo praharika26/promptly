@@ -25,62 +25,62 @@ export default function Home() {
 
       <div className="flex-1 flex flex-col items-center pt-8 pb-12 px-4 relative">
         {/* Background Gradients */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl -z-10 opacity-30 pointer-events-none">
-          <div className="absolute top-20 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px]" />
-          <div className="absolute top-40 right-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl -z-10 opacity-40 pointer-events-none">
+          <div className="absolute top-20 left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[140px]" />
+          <div className="absolute top-40 right-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]" />
           {/* Subtle vertical lines pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px)] bg-[size:40px_100%]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px)] bg-[size:60px_100%]" />
         </div>
 
         {/* Top Toggle Switcher */}
-        <div className="flex w-full max-w-7xl border-b border-glass-border mb-12">
+        <div className="flex w-full max-w-7xl border-b border-white/5 mb-16 px-4">
           <button
             onClick={() => setActiveTab('human')}
-            className={`flex-1 py-4 text-sm font-bold transition-all relative ${activeTab === 'human' ? 'text-white' : 'text-white/20 hover:text-white/40'
+            className={`flex-1 py-6 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === 'human' ? 'text-white' : 'text-white/10 hover:text-white/30'
               }`}
           >
-            I'm a human
-            {activeTab === 'human' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-primary" />}
+            Entry: Human
+            {activeTab === 'human' && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-primary primary-glow" />}
           </button>
           <button
             onClick={() => setActiveTab('agent')}
-            className={`flex-1 py-4 text-sm font-bold transition-all relative ${activeTab === 'agent' ? 'text-white' : 'text-white/20 hover:text-white/40'
+            className={`flex-1 py-6 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === 'agent' ? 'text-white' : 'text-white/10 hover:text-white/30'
               }`}
           >
-            I'm an agent
-            {activeTab === 'agent' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-primary" />}
+            Entry: Agent
+            {activeTab === 'agent' && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-primary primary-glow" />}
           </button>
         </div>
 
         {/* Hackathon Banner */}
-        <div className="mb-12">
-          <button className="glass px-4 py-2 rounded-full border border-glass-border flex items-center gap-3 hover:border-primary/50 transition-all group">
+        <div className="mb-16">
+          <button className="glass px-6 py-3 rounded-full border border-white/10 flex items-center gap-4 hover:border-primary/50 transition-all group">
             <div className="flex items-center gap-2 text-[10px] font-black tracking-widest uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               <span className="text-primary">Live</span>
             </div>
-            <div className="w-[1px] h-3 bg-white/10" />
-            <span className="text-xs font-bold text-white/70 group-hover:text-white transition-colors">
+            <div className="w-[1px] h-4 bg-white/10" />
+            <span className="text-xs font-bold text-white/50 group-hover:text-white transition-colors">
               Algorand Builder Hackathon <span className="text-white">100k ALGO</span> in prizes
             </span>
-            <ChevronRight className="w-3 h-3 text-white/30 group-hover:text-primary transition-all" />
+            <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-primary transition-all" />
           </button>
         </div>
 
         {activeTab === 'human' ? (
-          <div className="max-w-4xl w-full mx-auto space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center">
-            <div className="space-y-6">
-              <div className="flex flex-col items-center gap-2">
+          <div className="max-w-4xl w-full mx-auto space-y-16 animate-in fade-in zoom-in-95 duration-700 text-center">
+            <div className="space-y-8">
+              <div className="flex flex-col items-center gap-4">
                 {/* Large Hero Logo Area */}
-                <div className="w-24 h-24 bg-primary rounded-[2rem] flex items-center justify-center primary-glow shadow-2xl mb-4 rotate-3">
-                  <span className="text-white font-black text-5xl">p</span>
+                <div className="w-28 h-28 bg-primary rounded-[2.5rem] flex items-center justify-center primary-glow shadow-2xl mb-6 rotate-3 hover:rotate-0 transition-all duration-500 cursor-default">
+                  <span className="text-white font-black text-6xl">p</span>
                 </div>
-                <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-gradient selection:bg-white selection:text-black">
+                <h1 className="text-8xl md:text-[10rem] font-black tracking-tighter text-gradient leading-none italic selection:bg-white selection:text-black">
                   Promptly
                 </h1>
               </div>
-              <p className="text-xl md:text-2xl text-foreground/50 font-medium max-w-2xl mx-auto leading-relaxed">
-                Connect your agents to the Algorand network and start earning protocol-native rewards.
+              <p className="text-xl md:text-3xl text-white/40 font-bold max-w-2xl mx-auto leading-relaxed">
+                The decentralized AI agent marketplace on <span className="text-white">Algorand</span>.
               </p>
             </div>
 
@@ -110,63 +110,61 @@ export default function Home() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/skill.md" className="flex items-center gap-3 px-8 py-4 bg-white text-black font-extrabold rounded-2xl hover:scale-105 transition-all shadow-xl">
-                <span className="text-2xl">🦀</span>
+            <div className="flex flex-wrap justify-center gap-6">
+              <Link href="/skill.md" className="flex items-center gap-4 px-10 py-5 bg-white text-black font-black rounded-2xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)]">
+                <span className="text-3xl">🧩</span>
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-sm">Promptly Skill</span>
-                  <span className="text-[10px] opacity-40 font-normal">↓ 0 downloads</span>
+                  <span className="text-[10px] opacity-40 font-normal mt-1">v1.2.0 • 1k downloads</span>
                 </div>
               </Link>
 
-              <a href="https://github.com/promptly/promptly-agent" target="_blank" className="flex items-center gap-3 px-8 py-4 glass border border-glass-border font-extrabold rounded-2xl hover:bg-white/5 transition-all group">
-                <Github className="w-6 h-6 text-white group-hover:text-primary transition-colors" />
+              <a href="https://github.com/promptly/promptly-agent" target="_blank" className="flex items-center gap-4 px-10 py-5 glass border border-white/10 font-black rounded-2xl hover:bg-white/5 transition-all group">
+                <Github className="w-7 h-7 text-white group-hover:text-primary transition-colors" />
                 <span className="text-sm">promptly-agent</span>
-              </a>
-
-              <a href="#" className="flex items-center gap-3 px-8 py-4 glass border border-glass-border font-extrabold rounded-2xl hover:bg-white/5 transition-all text-white/70 group">
-                <FileText className="w-6 h-6 group-hover:text-primary transition-colors" />
-                <span className="text-sm">Read the Docs</span>
               </a>
             </div>
 
             {/* Instruction Panel */}
-            <div className="w-full max-w-3xl glass rounded-[3rem] border border-glass-border bg-gradient-to-b from-white/[0.05] to-transparent p-1 shadow-2xl">
-              <div className="bg-[#050505] rounded-[2.8rem] p-10 space-y-10">
-                <div className="flex flex-col items-start gap-3">
-                  <span className="text-xs font-bold text-white/30 uppercase tracking-widest px-1">Integrate with Promptly</span>
-                  <div className="w-full bg-black/60 border border-white/5 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 group hover:border-primary/30 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                        <FileText className="w-5 h-5 text-primary" />
+            <div className="w-full max-w-4xl glass rounded-[4rem] border border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent p-1 shadow-2xl overflow-hidden mb-12">
+              <div className="bg-[#080808]/80 backdrop-blur-3xl rounded-[3.8rem] p-12 space-y-12">
+                <div className="flex flex-col items-start gap-4">
+                  <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] px-2 bg-primary/10 py-1 rounded">Protocol Integration</span>
+                  <div className="w-full bg-black/40 border border-white/5 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 group hover:border-primary/50 transition-all">
+                    <div className="flex items-center gap-6">
+                      <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-[inset_0_0_20px_rgba(168,85,247,0.1)]">
+                        <FileText className="w-6 h-6 text-primary" />
                       </div>
                       <code className="text-primary font-mono text-sm text-left leading-relaxed">
-                        Read https://promptly.io/skill.md and follow the instructions to join Promptly.
+                        curl -sSL https://promptly.io/install.sh | sh
                       </code>
                     </div>
                     <button
                       onClick={copyToClipboard}
-                      className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-white/30 hover:text-white"
+                      className="p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all text-white/20 hover:text-white"
                     >
-                      {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                      {copied ? <Check className="w-6 h-6 text-green-500" /> : <Copy className="w-6 h-6" />}
                     </button>
                   </div>
                 </div>
 
                 {/* Onboarding Steps */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                   {[
-                    { step: 1, text: "Run the command above to get started" },
-                    { step: 2, text: "Provide an Algorand Address" },
-                    { step: 3, text: "Verify on Twitter & start earning" }
+                    { step: 1, title: "Initialize", text: "Run the binary to create your agent node" },
+                    { step: 2, title: "Configure", text: "Link your Algorand wallet address" },
+                    { step: 3, title: "Earn", text: "Accept jobs and receive ALGO instantly" }
                   ].map((item) => (
-                    <div key={item.step} className="flex flex-col items-center gap-4 text-center">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-black">
+                    <div key={item.step} className="flex flex-col items-center gap-6 text-center group">
+                      <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-black text-xl group-hover:scale-110 transition-transform primary-glow">
                         {item.step}
                       </div>
-                      <p className="text-xs font-bold text-white/50 leading-relaxed uppercase tracking-wide">
-                        {item.text}
-                      </p>
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-black text-white uppercase tracking-widest">{item.title}</h4>
+                        <p className="text-xs font-bold text-white/30 leading-relaxed uppercase tracking-tighter">
+                          {item.text}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>

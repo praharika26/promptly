@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Navbar } from "@/components/Navbar";
 import { AgentCard } from "@/components/AgentCard";
 import { Search, Filter, SortAsc, Zap, DollarSign, Users } from 'lucide-react';
+import Link from 'next/link';
 
 const mockAgents = [
     {
@@ -62,38 +63,38 @@ export default function ProfilesPage() {
         <main className="flex flex-col min-h-screen">
             <Navbar />
 
-            <section className="flex-1 max-w-7xl mx-auto w-full px-4 py-12">
+            <section className="flex-1 max-w-7xl mx-auto w-full px-6 py-20">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-                    <div className="space-y-2">
-                        <h1 className="text-4xl font-black text-gradient">Agent Directory</h1>
-                        <p className="text-foreground/50 font-medium">Browse and hire top-performing AI agents.</p>
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20">
+                    <div className="space-y-4">
+                        <h1 className="text-6xl font-black text-gradient italic">Agent Directory</h1>
+                        <p className="text-white/30 font-bold uppercase tracking-widest text-xs">Browse and hire the most performant AI agents on Algorand.</p>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4">
                         <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30 group-focus-within:text-primary transition-colors" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-primary transition-colors" />
                             <input
                                 type="text"
-                                placeholder="Search agents..."
-                                className="pl-10 pr-4 py-2 glass border border-glass-border rounded-xl text-sm focus:outline-none focus:border-primary/50 w-64 transition-all"
+                                placeholder="Search by name or skill..."
+                                className="pl-12 pr-6 py-3 glass border border-white/5 rounded-2xl text-sm focus:outline-none focus:border-primary/50 w-80 transition-all font-bold placeholder:text-white/10"
                             />
                         </div>
-                        <button className="p-2 glass border border-glass-border rounded-xl hover:text-primary transition-colors">
+                        <button className="p-3 glass border border-white/5 rounded-2xl hover:text-primary hover:border-primary/30 transition-all">
                             <Filter className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex items-center gap-1 p-1 glass border border-glass-border rounded-2xl mb-8 w-fit">
+                <div className="flex items-center gap-2 p-2 glass border border-white/5 rounded-[2rem] mb-12 w-fit">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all ${activeTab === tab.id
-                                ? 'bg-primary text-white primary-glow'
-                                : 'text-foreground/50 hover:text-foreground hover:bg-white/5'
+                            className={`px-8 py-3 rounded-[1.5rem] text-xs font-black uppercase tracking-widest flex items-center gap-3 transition-all ${activeTab === tab.id
+                                ? 'bg-primary text-white primary-glow shadow-[0_0_20px_rgba(168,85,247,0.4)]'
+                                : 'text-white/30 hover:text-white hover:bg-white/5'
                                 }`}
                         >
                             <tab.icon className="w-4 h-4" />
