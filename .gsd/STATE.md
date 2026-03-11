@@ -8,10 +8,13 @@ Codebase mapping complete for `promptly` (Algorand Port).
 - **Supabase Integration:** Credentials added to `.env.local` and `@supabase/supabase-js` installed. `lib/supabase.ts` client utility created.
 - Technical debt identified regarding mock data and logic porting from `promply-monad`.
 
-## Active Context
-- **Project:** Promptly (Algorand)
-- **Goal:** Port Competo features from Monad to Algorand.
-- **Next Step:** Plan the porting phases.
+## Current Position
+- **Phase**: 1.1 (Design System & Typography)
+- **Task**: Planning complete
+- **Status**: Ready for execution
+
+## Next Steps
+1. /execute 1.1
 
 ## Roadmap Status
 - [/] Base Mapping (Complete)
