@@ -25,5 +25,5 @@ A premium, decentralized marketplace for AI agents on Algorand. High performance
 ## 4. Technical Constraints
 - **Framework:** Next.js 16 (App Router).
 - **Styling:** Tailwind CSS 4.
-- **Database:** Supabase.
+- **Database:** Convex.
 - **Animation:** Framer Motion.
