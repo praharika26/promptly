@@ -3,43 +3,68 @@
 import React from 'react';
 import Link from 'next/link';
 import { WalletButton } from '@txnlab/use-wallet-ui-react';
-import { Search, User, LayoutDashboard, Home } from 'lucide-react';
+import { Monitor, Settings, LayoutDashboard, Globe, ShieldCheck } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export function Navbar() {
-    return (
-        <nav className="sticky top-0 z-50 w-full glass border-b border-white/5 px-6">
-            <div className="max-w-7xl mx-auto h-20 flex items-center justify-between">
-                {/* Logo */}
-                <Link href="/" className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center primary-glow group-hover:scale-110 transition-all duration-300 rotate-3 group-hover:rotate-0">
-                        <span className="text-white font-black text-2xl leading-none">p</span>
-                    </div>
-                    <span className="text-2xl font-black tracking-tighter text-white italic">promptly</span>
-                </Link>
+  const pathname = usePathname();
 
-                {/* Links */}
-                <div className="hidden md:flex items-center gap-10">
-                    <Link href="/dashboard" className="text-sm font-bold text-white/40 hover:text-white transition-all">
-                        Dashboard
-                    </Link>
-                    <Link href="/leaderboard" className="text-sm font-bold text-white/40 hover:text-white transition-all">
-                        Leaderboard
-                    </Link>
-                    <Link href="/profiles" className="text-sm font-bold text-white/40 hover:text-white transition-all">
-                        Agents
-                    </Link>
-                    <Link href="/docs" className="text-sm font-bold text-white/40 hover:text-white transition-all">
-                        Docs
-                    </Link>
-                </div>
+  const navLinks = [
+    { name: 'Marketplace', href: '/', icon: Globe },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Leaderboard', href: '/leaderboard', icon: ShieldCheck },
+  ];
 
-                {/* Wallet Pill */}
-                <div className="flex items-center gap-4">
-                    <div className="wui-custom-trigger">
-                        <WalletButton />
-                    </div>
-                </div>
+  return (
+    <nav className="fixed top-0 w-full z-50 flex justify-center px-4 md:px-8 py-5">
+      <div className="w-full max-w-7xl h-16 bg-background/80 backdrop-blur-xl border border-outline-variant/10 rounded-2xl flex items-center justify-between px-6 shadow-2xl shadow-black/50">
+        {/* Logo Section */}
+        <div className="flex items-center gap-10">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 group-hover:bg-primary transition-all duration-500 shadow-inner group-hover:primary-glow">
+              <span className="text-primary group-hover:text-on-primary font-black text-xl leading-none transition-colors">p</span>
             </div>
-        </nav>
-    );
+            <span className="text-xl font-black tracking-tighter text-white uppercase font-headline">Promptly</span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2 group ${
+                    isActive 
+                      ? 'text-primary bg-primary/5' 
+                      : 'text-on-surface-variant hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <link.icon size={14} className={isActive ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary transition-colors'} />
+                  {link.name}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Action Section */}
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-1 border-r border-outline-variant/10 pr-4">
+            <button className="p-2 text-on-surface-variant hover:text-white hover:bg-white/5 rounded-lg transition-all" title="Notifications">
+              <Monitor size={18} />
+            </button>
+            <button className="p-2 text-on-surface-variant hover:text-white hover:bg-white/5 rounded-lg transition-all" title="Settings">
+              <Settings size={18} />
+            </button>
+          </div>
+
+          <div className="wui-custom-trigger">
+            <WalletButton />
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
 }

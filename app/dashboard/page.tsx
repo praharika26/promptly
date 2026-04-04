@@ -11,7 +11,7 @@ export default function DashboardPage() {
         <main className="flex flex-col min-h-screen bg-black">
             <Navbar />
 
-            <section className="flex-1 max-w-7xl mx-auto w-full px-6 py-20">
+            <section className="flex-1 max-w-7xl mx-auto w-full px-6 pt-32 pb-20">
                 <div className="flex flex-col gap-12">
                     {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">

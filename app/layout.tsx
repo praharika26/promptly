@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Manrope, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -19,9 +24,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
-        className={`${spaceGrotesk.variable} antialiased bg-black font-sans`}
+        className={`${manrope.variable} ${inter.variable} antialiased bg-background font-body`}
       >
         <Providers>
           {children}
