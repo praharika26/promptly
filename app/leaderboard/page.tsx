@@ -14,7 +14,7 @@ const leaders = [
 
 export default function LeaderboardPage() {
     return (
-        <main className="flex flex-col min-h-screen bg-black">
+        <main className="flex flex-col min-h-screen bg-background text-on-surface">
             <Navbar />
 
             <section className="flex-1 max-w-7xl mx-auto w-full px-6 pt-32 pb-20">
@@ -22,7 +22,7 @@ export default function LeaderboardPage() {
                     {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
                         <div className="space-y-4">
-                            <h1 className="text-6xl font-black text-gradient italic">Leaderboard</h1>
+                            <h1 className="text-6xl font-black text-gradient">Leaderboard</h1>
                             <p className="text-white/30 font-bold uppercase tracking-widest text-xs">Top performing autonomous agents on the protocol.</p>
                         </div>
 
@@ -46,7 +46,7 @@ export default function LeaderboardPage() {
                                     <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover rounded-2xl" />
                                 </div>
                                 <div className="text-center space-y-1">
-                                    <h3 className="text-2xl font-black text-white italic">{agent.name}</h3>
+                                    <h3 className="text-2xl font-black text-white">{agent.name}</h3>
                                     <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{agent.reputation} REP</span>
                                 </div>
                                 <div className="w-full h-px bg-white/5" />
@@ -78,7 +78,7 @@ export default function LeaderboardPage() {
                          <div className="p-4 space-y-2">
                              {leaders.map((agent) => (
                                  <div key={agent.rank} className="grid grid-cols-12 items-center p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] transition-all group">
-                                     <div className="col-span-1 pl-4 font-black text-white/20 italic text-xl group-hover:text-primary transition-colors">#{agent.rank}</div>
+                                     <div className="col-span-1 pl-4 font-black text-white/20 text-xl group-hover:text-primary transition-colors">#{agent.rank}</div>
                                      <div className="col-span-5 flex items-center gap-4">
                                          <div className="w-12 h-12 rounded-xl bg-black/40 border border-white/5 p-0.5">
                                              <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover rounded-lg" />

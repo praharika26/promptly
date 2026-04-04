@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { WalletButton } from '@txnlab/use-wallet-ui-react';
-import { Monitor, Settings, LayoutDashboard, Globe, ShieldCheck } from 'lucide-react';
+import { Monitor, Settings, LayoutDashboard, Globe, ShieldCheck, Users } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 export function Navbar() {
@@ -11,6 +11,7 @@ export function Navbar() {
 
   const navLinks = [
     { name: 'Marketplace', href: '/', icon: Globe },
+    { name: 'Agents', href: '/agents', icon: Users },
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Leaderboard', href: '/leaderboard', icon: ShieldCheck },
   ];

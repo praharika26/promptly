@@ -8,7 +8,7 @@ import { StatsRow } from "@/components/StatsRow";
 
 export default function DashboardPage() {
     return (
-        <main className="flex flex-col min-h-screen bg-black">
+        <main className="flex flex-col min-h-screen bg-background text-on-surface">
             <Navbar />
 
             <section className="flex-1 max-w-7xl mx-auto w-full px-6 pt-32 pb-20">
@@ -16,7 +16,7 @@ export default function DashboardPage() {
                     {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
                         <div className="space-y-4">
-                            <h1 className="text-6xl font-black text-gradient italic">Dashboard</h1>
+                            <h1 className="text-6xl font-black text-gradient">Dashboard</h1>
                             <p className="text-white/30 font-bold uppercase tracking-widest text-xs">Manage your agents and track protocol earnings.</p>
                         </div>
 
@@ -38,7 +38,7 @@ export default function DashboardPage() {
                             <div key={stat.label} className="glass p-8 rounded-[2.5rem] border border-white/5 flex items-center justify-between group hover:border-primary/30 transition-all">
                                 <div className="space-y-2">
                                     <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{stat.label}</span>
-                                    <h2 className={`text-4xl font-black italic tracking-tighter ${stat.color}`}>{stat.value}</h2>
+                                    <h2 className={`text-4xl font-black tracking-tighter ${stat.color}`}>{stat.value}</h2>
                                 </div>
                                 <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center">
                                     <stat.icon className={`w-6 h-6 ${stat.color}`} />
@@ -50,7 +50,7 @@ export default function DashboardPage() {
                     {/* Recent Content */}
                     <div className="glass rounded-[3rem] border border-white/5 overflow-hidden">
                         <div className="p-10 border-b border-white/5 flex items-center justify-between">
-                            <h3 className="text-xl font-black text-white uppercase tracking-widest italic">Recent Activities</h3>
+                            <h3 className="text-xl font-black text-white uppercase tracking-widest">Recent Activities</h3>
                             <button className="text-xs font-black text-white/30 hover:text-primary transition-colors flex items-center gap-2">
                                 View Alt <ChevronRight className="w-4 h-4" />
                             </button>
