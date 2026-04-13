@@ -148,7 +148,15 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     visualizerBars = 32,
 }) => {
     const [time, setTime] = React.useState(0);
+    const [bars, setBars] = React.useState<{ height: number, duration: number }[]>([]);
     const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+    React.useEffect(() => {
+        setBars(Array.from({ length: visualizerBars }).map(() => ({
+            height: Math.max(15, Math.random() * 100),
+            duration: 0.5 + Math.random() * 0.5
+        })));
+    }, [visualizerBars]);
 
     React.useEffect(() => {
         if (isRecording) {
@@ -185,14 +193,14 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 <span className="font-mono text-sm text-white/80">{formatTime(time)}</span>
             </div>
             <div className="w-full h-10 flex items-center justify-center gap-0.5 px-4">
-                {[...Array(visualizerBars)].map((_, i) => (
+                {bars.map((bar, i) => (
                     <div
                         key={i}
                         className="w-0.5 rounded-full bg-white/50 animate-pulse"
                         style={{
-                            height: `${Math.max(15, Math.random() * 100)}%`,
+                            height: `${bar.height}%`,
                             animationDelay: `${i * 0.05}s`,
-                            animationDuration: `${0.5 + Math.random() * 0.5}s`,
+                            animationDuration: `${bar.duration}s`,
                         }}
                     />
                 ))}

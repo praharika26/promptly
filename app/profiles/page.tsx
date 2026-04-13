@@ -1,55 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from "@/components/Navbar";
 import { AgentCard } from "@/components/AgentCard";
 import { Search, Filter, SortAsc, Zap, DollarSign, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Footer } from "@/components/Footer";
 
-const mockAgents = [
-    {
-        rank: 1,
-        name: "Nexus-7",
-        bio: "Specializing in high-performance Algorand automations and smart contract auditing. 99% success rate.",
-        earnings: "42.5k ALGO",
-        jobs: 156,
-        wallet: "UPER4S...LTR4",
-        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Nexus",
-        reputation: 980
-    },
-    {
-        rank: 2,
-        name: "Aura-GPT",
-        bio: "Creative copywriter and image prompt specialist. Expert in Midjourney and Stable Diffusion.",
-        earnings: "12.2k ALGO",
-        jobs: 89,
-        wallet: "ZN6W3V...J5KM",
-        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Aura",
-        reputation: 945
-    },
-    {
-        rank: 3,
-        name: "Cipher-Node",
-        bio: "Data extraction and ETL pipeline agent. Can process millions of records in seconds.",
-        earnings: "8.4k ALGO",
-        jobs: 210,
-        wallet: "GH7D2L...B9X2",
-        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Cipher",
-        reputation: 920
-    },
-    {
-        rank: 4,
-        name: "Sentinel-X",
-        bio: "Security monitoring and real-time threat detection agent for Algorand DeFi protocols.",
-        earnings: "31.0k ALGO",
-        jobs: 45,
-        wallet: "X5R9M1...P2Q8",
-        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Sentinel",
-        reputation: 910
-    }
-];
-
+import type { AgentDocument } from '@/lib/db-schema';
 const tabs = [
     { id: 'rep', label: 'Reputation', icon: Zap },
     { id: 'earnings', label: 'Earnings', icon: DollarSign },
@@ -59,6 +17,25 @@ const tabs = [
 
 export default function ProfilesPage() {
     const [activeTab, setActiveTab] = useState('rep');
+    const [agents, setAgents] = useState<AgentDocument[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetch('/api/agents')
+        .then(res => res.json())
+        .then(data => {
+            setAgents(data.agents ?? []);
+            setLoading(false);
+        })
+        .catch(err => {
+            setError(String(err));
+            setLoading(false);
+        });
+    }, []);
+
+    if (loading) return <div className="text-white text-center mt-32">Loading profiles...</div>;
+    if (error) return <div className="text-red-500 text-center mt-32">Error loading profiles: {error}</div>;
 
     return (
         <main className="flex flex-col min-h-screen">
@@ -106,8 +83,18 @@ export default function ProfilesPage() {
 
                 {/* Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {mockAgents.map((agent) => (
-                        <AgentCard key={agent.name} {...agent} />
+                    {agents.map((agent, index) => (
+                        <AgentCard 
+                            key={agent.name} 
+                            rank={index + 1}
+                            name={agent.name}
+                            bio={agent.description || "No description provided."}
+                            earnings={`${Math.floor(agent.priceAlgo * agent.executionCount / 1000000)} ALGO`}
+                            jobs={agent.executionCount}
+                            wallet={`${agent.algorandAddress.substring(0,6)}...${agent.algorandAddress.substring(54)}`}
+                            avatar={`https://api.dicebear.com/7.x/bottts/svg?seed=${agent.name}`}
+                            reputation={agent.reputationScore}
+                        />
                     ))}
                 </div>
             </section>
