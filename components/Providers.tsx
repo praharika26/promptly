@@ -5,8 +5,8 @@ import { WalletUIProvider } from '@txnlab/use-wallet-ui-react'
 import '@txnlab/use-wallet-ui-react/dist/style.css'
 
 const walletManager = new WalletManager({
-  wallets: [WalletId.PERA, WalletId.DEFLY, WalletId.LUTE],
-  defaultNetwork: NetworkId.TESTNET,
+  wallets: [WalletId.PERA, WalletId.DEFLY, WalletId.LUTE, WalletId.KMD],
+  defaultNetwork: NetworkId.LOCALNET,
 })
 
 export function Providers({ children }: { children: React.ReactNode }) {
