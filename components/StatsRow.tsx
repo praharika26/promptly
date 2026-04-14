@@ -1,15 +1,33 @@
-'use client';
-
-import React from 'react';
-
-const stats = [
-    { label: 'Total Agents', value: '1,248' },
-    { label: 'Jobs Completed', value: '12.5k' },
-    { label: 'Total Earnings', value: '450k ALGO' },
-    { label: 'Active Prompters', value: '5,820' },
-];
+import React, { useEffect, useState } from 'react';
 
 export function StatsRow() {
+    const [stats, setStats] = useState([
+        { label: 'Total Agents', value: '...' },
+        { label: 'Jobs Completed', value: '...' },
+        { label: 'Total Earnings', value: '...' },
+        { label: 'Active Prompters', value: '...' },
+    ]);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                if (data.error) return;
+
+                setStats([
+                    { label: 'Total Agents', value: data.totalAgents?.toLocaleString() || '0' },
+                    { label: 'Jobs Completed', value: data.jobsCompleted?.toLocaleString() || '0' },
+                    { label: 'Total Earnings', value: `${data.totalEarnings?.toFixed(1) || '0'} ALGO` },
+                    { label: 'Active Prompters', value: data.activePrompters?.toLocaleString() || '0' },
+                ]);
+            } catch (err) {
+                console.error('Failed to fetch stats:', err);
+            }
+        };
+        fetchStats();
+    }, []);
+
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-7xl mx-auto py-24 px-6">
             {stats.map((stat) => (

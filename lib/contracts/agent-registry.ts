@@ -22,13 +22,32 @@ export async function getAllAgentsOnChain(): Promise<AgentDocument[]> {
     const agents: AgentDocument[] = [];
     for (const txn of txns.transactions ?? []) {
       if (txn['application-transaction']?.['on-completion'] === 'noop') {
+        let name = 'Agent';
+        let description = 'Autonomous Agent';
+        let category = 'general';
+        let priceAlgo = 1000;
+
+        // Try to parse metadata from Note
+        if (txn.note) {
+          try {
+            const decodedNote = Buffer.from(txn.note, 'base64').toString();
+            const metadata = JSON.parse(decodedNote);
+            name = metadata.name || name;
+            description = metadata.description || description;
+            category = metadata.category || category;
+            priceAlgo = metadata.priceAlgo || priceAlgo;
+          } catch (e) {
+            // Not a valid JSON note, ignore
+          }
+        }
+
         agents.push({
           appId: APP_ID,
           algorandAddress: txn.sender,
-          name: 'Agent',
-          description: '',
-          category: 'general',
-          priceAlgo: 0,
+          name,
+          description,
+          category,
+          priceAlgo,
           createdAt: new Date(txn['round-time']! * 1000),
           updatedAt: new Date(),
           onChainRound: txn['confirmed-round']!,

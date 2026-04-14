@@ -22,8 +22,10 @@ export interface ExecutionDocument {
   appId: number;                    // AgentExecutor App ID
   agentAppId: number;               // Which AgentRegistry entry
   callerAddress: string;
-  inputHash: string;                // Hash of the input payload
-  outputHash: string;               // Hash of the output
+  input: string;                    // The actual prompt text
+  output: string;                   // The AI response text
+  inputHash: string;                // Hash of the input payload for chain
+  outputHash: string;               // Hash of the output for chain
   txId: string;
   round: number;
   executedAt: Date;
