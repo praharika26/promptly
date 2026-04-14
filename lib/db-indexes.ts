@@ -4,8 +4,10 @@ export async function ensureIndexes() {
   const { db } = await connectToDatabase();
 
   // Agents collection
+  try { await db.collection('agents').dropIndex('appId_1'); } catch (e) {}
   await db.collection('agents').createIndexes([
-    { key: { appId: 1 }, unique: true },
+    { key: { appId: 1 } },
+    { key: { txId: 1 }, unique: true },
     { key: { algorandAddress: 1 } },
     { key: { category: 1 } },
     { key: { reputationScore: -1 } },

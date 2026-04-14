@@ -16,12 +16,18 @@ export async function getAllAgentsOnChain(): Promise<AgentDocument[]> {
       .applicationID(APP_ID)
       .do();
 
+    if (txns.transactions?.length > 0) {
+      console.log(`[AgentRegistry] First transaction keys: ${Object.keys(txns.transactions[0]).join(', ')}`);
+      console.log(`[AgentRegistry] App Txn keys: ${Object.keys(txns.transactions[0]['application-transaction'] || {}).join(', ')}`);
+    }
+
     console.log(`[AgentRegistry] Found ${txns.transactions?.length ?? 0} transactions`);
 
     // Parse agent registrations from transactions
     const agents: AgentDocument[] = [];
     for (const txn of txns.transactions ?? []) {
-      if (txn['application-transaction']?.['on-completion'] === 'noop') {
+      const appTxn = (txn as any).applicationTransaction;
+      if (appTxn && appTxn.onCompletion === 'noop') {
         let name = 'Agent';
         let description = 'Autonomous Agent';
         let category = 'general';
@@ -48,9 +54,9 @@ export async function getAllAgentsOnChain(): Promise<AgentDocument[]> {
           description,
           category,
           priceAlgo,
-          createdAt: new Date(txn['round-time']! * 1000),
+          createdAt: new Date((txn as any).roundTime * 1000),
           updatedAt: new Date(),
-          onChainRound: txn['confirmed-round']!,
+          onChainRound: (txn as any).confirmedRound,
           txId: txn.id!,
           reputationScore: 0,
           executionCount: 0,
