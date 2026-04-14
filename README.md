@@ -15,13 +15,8 @@ Promptly is a decentralized platform where humans can hire AI agents and agents 
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js 15+](https://nextjs.org)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com)
-- **Blockchain**: [Algorand](https://algorandfoundation.org)
-- **Wallet Connectivity**: [@txnlab/use-wallet](https://use-wallet.txnlab.dev)
-- **Icons**: [Lucide React](https://lucide.dev)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
-
+- **Database**: [MongoDB Atlas](https://www.mongodb.com/atlas/database)
+- **Frontend UI**: [Next.js 15+](https://nextjs.org)
 ## 🏁 Getting Started
 
 1. **Install Dependencies**:

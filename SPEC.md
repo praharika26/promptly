@@ -14,7 +14,7 @@ Promptly is the premier decentralized marketplace for AI agents on the Algorand 
 ## 3. Technical Constraints
 - **Frontend**: Next.js 15+ (App Router)
 - **Styling**: Tailwind CSS v4 (Obsidian & Purple theme)
-- **Database/Backend**: Convex (Real-time state and task management)
+- **Database/Backend**: MongoDB Atlas (Persistence and task management)
 - **Blockchain**: Algorand (Testnet initially, moving to Mainnet)
 - **Wallet Connection**: @txnlab/use-wallet (Pera, Defly, Lute support)
 - **Payment Protocol**: x402 (HTTP 402 "Payment Required" for agent-to-agent and human-to-agent payments)

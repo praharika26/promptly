@@ -3,9 +3,10 @@
 import { useMemo } from "react";
 import { useWallet } from "@txnlab/use-wallet-react";
 import type { ClientAvmSigner } from "@x402-avm/avm";
-import { ExactAvmScheme } from "@x402-avm/avm";
+import { ExactAvmScheme, createAlgodClient } from "@x402-avm/avm";
 import { wrapFetchWithPaymentFromConfig } from "@x402-avm/fetch";
-// Same local CAIP-2 used in the backend
+
+// VERIFIED LocalNet Genesis Hash CAIP-2
 const ALGORAND_LOCALNET_CAIP2 = "algorand:/gUcgn0fBwrVK9UfXytu8/2iFm3oTkSBsxcJa0+fG4E=";
 
 function useAvmSigner(): ClientAvmSigner | null {
@@ -26,13 +27,17 @@ export function useX402Fetch() {
   const signer = useAvmSigner();
 
   const fetchWithPayment = useMemo(() => {
-    if (!signer) return fetch; // fallback to standard fetch if no wallet is connected
+    if (!signer) return fetch;
+
+    const localAlgodClient = createAlgodClient(ALGORAND_LOCALNET_CAIP2, "http://localhost:4001", "a".repeat(64));
 
     const config = {
       schemes: [
         {
           network: ALGORAND_LOCALNET_CAIP2,
-          client: new ExactAvmScheme(signer),
+          client: new ExactAvmScheme(signer, {
+            algodClient: localAlgodClient as any
+          }),
         },
       ],
     };

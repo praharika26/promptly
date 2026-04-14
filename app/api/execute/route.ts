@@ -29,15 +29,18 @@ async function executeHandler(req: NextRequest) {
   }
 }
 
-// We wrap the handler with x402. Note: we can use a dynamic wrapper or static config.
-// Since x402 expects static accepts for Next.js app routes natively through withX402, 
-// we provide a static entry but you can also use `req` properties in a custom middleware.
+// Reverting to standard Testnet CAIP-2 with explicit native ALGO configuration.
+// Note: asset '0' goes into extra.
 export const POST = withX402(executeHandler, {
   accepts: {
     scheme: "exact",
     network: ALGORAND_LOCALNET_CAIP2,
     payTo: process.env.PAY_TO || "QZUNVQQ3T6TNOXUKZTEXZ4JJFFQ77AF5GKXUE2A43YC7FKXOLSBDI6O76Y",
-    price: FALLBACK_PRICE, 
+    price: "$0.01",
+    extra: {
+      asset: "0", // Native ALGO
+      decimals: 6,
+    },
   },
   description: "Agent Execution Fee",
 }, x402Server);

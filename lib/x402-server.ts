@@ -1,10 +1,10 @@
 import { x402ResourceServer } from "@x402-avm/next";
 import { registerExactAvmScheme } from "@x402-avm/avm/exact/server";
-import { HTTPFacilitatorClient } from "@x402-avm/core/server";
+import { facilitator, ALGORAND_LOCALNET_CAIP2 } from "./x402-facilitator";
 
-const facilitatorClient = new HTTPFacilitatorClient({
-  url: process.env.FACILITATOR_URL || "http://localhost:3000/api/facilitator",
+export const x402Server = new x402ResourceServer(facilitator);
+
+// Explicitly register the scheme with the verified local genesis hash identifier
+registerExactAvmScheme(x402Server, {
+  networks: [ALGORAND_LOCALNET_CAIP2]
 });
-
-export const x402Server = new x402ResourceServer(facilitatorClient);
-registerExactAvmScheme(x402Server);
