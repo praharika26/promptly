@@ -7,7 +7,26 @@ import { ALGORAND_TESTNET_CAIP2, ALGORAND_MAINNET_CAIP2 } from "@x402-avm/avm";
 export const ALGORAND_LOCALNET_CAIP2 = "algorand:localnet-test";
 export { ALGORAND_TESTNET_CAIP2, ALGORAND_MAINNET_CAIP2 };
 
-const localnetSecretKey = Buffer.from(process.env.AVM_PRIVATE_KEY || process.env.LOCALNET_AVM_PRIVATE_KEY || "", "base64");
+function getKeyFromMnemonic(mnemonic: string): { sk: Buffer; address: string } {
+  const key = algosdk.mnemonicToSecretKey(mnemonic);
+  return {
+    sk: Buffer.from(key.sk),
+    address: algosdk.encodeAddress(key.sk.slice(32))
+  };
+}
+
+// Get testnet facilitator key from mnemonic
+const TESTNET_MNEMONIC = process.env.TESTNET_FACILITATOR_MNEMONIC || "";
+let testnetKey = { sk: Buffer.alloc(64), address: "" };
+
+if (TESTNET_MNEMONIC) {
+  testnetKey = getKeyFromMnemonic(TESTNET_MNEMONIC);
+  console.log("[Facilitator] Testnet address:", testnetKey.address);
+} else {
+  console.warn("[Facilitator] WARNING: TESTNET_FACILITATOR_MNEMONIC not set!");
+}
+
+const localnetSecretKey = Buffer.from(process.env.AVM_PRIVATE_KEY || "", "base64");
 const localnetAddress = algosdk.encodeAddress(localnetSecretKey.slice(32));
 
 const localnetAlgodClient = new algosdk.Algodv2(
@@ -38,12 +57,32 @@ function getAlgodClientForNetwork(network: string): algosdk.Algodv2 {
   return localnetAlgodClient;
 }
 
+function getSignerForNetwork(network: string) {
+  if (network.includes("testnet")) {
+    return testnetKey;
+  }
+  if (network.includes("mainnet") || !network.includes("/")) {
+    return testnetKey;
+  }
+  return { sk: localnetSecretKey, addr: localnetAddress };
+}
+
 const facilitatorSigner: FacilitatorAvmSigner = {
-  getAddresses: () => [localnetAddress],
+  getAddresses: () => {
+    const addresses = [testnetKey.address];
+    if (localnetAddress.length === 58) {
+      addresses.push(localnetAddress);
+    }
+    return addresses;
+  },
 
   signTransaction: async (txn: Uint8Array, senderAddress: string) => {
     const decoded = algosdk.decodeUnsignedTransaction(txn);
-    const signed = algosdk.signTransaction(decoded, localnetSecretKey);
+    const signer = getSignerForNetwork(senderAddress);
+    if (signer.sk.length !== 64) {
+      throw new Error("Invalid signer key");
+    }
+    const signed = algosdk.signTransaction(decoded, signer.sk);
     return signed.blob;
   },
 
