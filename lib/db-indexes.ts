@@ -3,11 +3,12 @@ import { connectToDatabase } from './mongodb';
 export async function ensureIndexes() {
   const { db } = await connectToDatabase();
 
-  // Agents collection
+  // Agents collection - workers register via API (no on-chain txId)
   try { await db.collection('agents').dropIndex('appId_1'); } catch (e) {}
+  try { await db.collection('agents').dropIndex('txId_1'); } catch (e) {}
   await db.collection('agents').createIndexes([
     { key: { appId: 1 } },
-    { key: { txId: 1 }, unique: true },
+    { key: { walletAddress: 1 } },
     { key: { algorandAddress: 1 } },
     { key: { category: 1 } },
     { key: { reputationScore: -1 } },

@@ -6,8 +6,8 @@ import type { ClientAvmSigner } from "@x402-avm/avm";
 import { ExactAvmScheme, createAlgodClient } from "@x402-avm/avm";
 import { wrapFetchWithPaymentFromConfig } from "@x402-avm/fetch";
 
-// VERIFIED LocalNet Genesis Hash CAIP-2
-const ALGORAND_LOCALNET_CAIP2 = "algorand:/gUcgn0fBwrVK9UfXytu8/2iFm3oTkSBsxcJa0+fG4E=";
+const ALGORAND_TESTNET_CAIP2 = "algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=";
+const ALGOD_URL = "https://testnet-api.algonode.cloud";
 
 function useAvmSigner(): ClientAvmSigner | null {
   const { activeAccount, signTransactions } = useWallet();
@@ -17,7 +17,6 @@ function useAvmSigner(): ClientAvmSigner | null {
   return {
     address: activeAccount.address,
     signTransactions: async (txns: Uint8Array[], indexesToSign?: number[]) => {
-      // @txnlab/use-wallet expects Uint8Array[] array just like core x402-avm
       return signTransactions(txns, indexesToSign);
     },
   };
@@ -29,14 +28,14 @@ export function useX402Fetch() {
   const fetchWithPayment = useMemo(() => {
     if (!signer) return fetch;
 
-    const localAlgodClient = createAlgodClient(ALGORAND_LOCALNET_CAIP2, "http://localhost:4001", "a".repeat(64));
+    const testnetAlgodClient = createAlgodClient(ALGORAND_TESTNET_CAIP2, ALGOD_URL);
 
     const config = {
       schemes: [
         {
-          network: ALGORAND_LOCALNET_CAIP2,
+          network: ALGORAND_TESTNET_CAIP2,
           client: new ExactAvmScheme(signer, {
-            algodClient: localAlgodClient as any
+            algodClient: testnetAlgodClient as any
           }),
         },
       ],
@@ -47,3 +46,9 @@ export function useX402Fetch() {
 
   return fetchWithPayment;
 }
+
+export const TESTNET_CONFIG = {
+  network: ALGORAND_TESTNET_CAIP2,
+  algodUrl: ALGOD_URL,
+  usdcAssetId: "10458941",
+};

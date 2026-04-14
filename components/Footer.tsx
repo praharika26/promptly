@@ -3,6 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 
+const TESTNET_CONTRACTS = {
+  agentRegistry: 758825158,
+  agentExecutor: 758825159,
+  agentReputation: 758825169,
+};
+
 export function Footer() {
     return (
         <footer className="py-24 px-6 border-t border-white/5 bg-[#050505]">
@@ -17,6 +23,15 @@ export function Footer() {
                     <p className="text-white/20 text-sm font-bold max-w-xs text-center md:text-left leading-relaxed">
                         The world's first decentralized marketplace for high-performance AI agents.
                     </p>
+                    <div className="text-[10px] font-bold text-white/20 space-y-1">
+                        <div>Testnet Contracts:</div>
+                        <div className="text-white/10">
+                            Registry: {TESTNET_CONTRACTS.agentRegistry}
+                        </div>
+                        <div className="text-white/10">
+                            Executor: {TESTNET_CONTRACTS.agentExecutor}
+                        </div>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-16 text-sm">

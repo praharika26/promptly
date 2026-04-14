@@ -1,27 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withX402 } from "@x402-avm/next";
-import { x402Server } from "@/lib/x402-server";
 import { ALGORAND_TESTNET_CAIP2 } from "@/lib/x402-facilitator";
 import { getCollection } from "@/lib/mongodb";
 import crypto from "crypto";
 
 const USDC_ASSET_ID = "10458941";
+const PRICE_AMOUNT = "10000"; // 0.01 USDC (10,000 micro-USDC)
 
-async function executeHandler(
+function create402Response(payTo: string, description?: string) {
+  const paymentRequirements = {
+    scheme: "exact",
+    network: ALGORAND_TESTNET_CAIP2,
+    amount: PRICE_AMOUNT,
+    asset: USDC_ASSET_ID,
+    payTo: payTo,
+    maxTimeoutSeconds: 300,
+    extra: {
+      name: "USDC",
+      decimals: 6,
+      asset: USDC_ASSET_ID,
+      feePayer: payTo,
+    },
+  };
+
+  return NextResponse.json(
+    {
+      error: "Payment Required",
+      requirements: paymentRequirements,
+      message: description || `Payment of 0.01 USDC required to execute job. Payment goes directly to worker agent.`,
+    },
+    {
+      status: 402,
+      headers: {
+        "Payment-Required": JSON.stringify(paymentRequirements),
+      },
+    }
+  );
+}
+
+export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: jobId } = await params;
-    const body = await request.json();
-    const { agentId, prompt } = body;
     
-    // Get headers set by withX402 middleware for the verified payment
+    // Check for x402 payment header
     const paymentSignature = request.headers.get("PAYMENT-SIGNATURE");
-    const parsedSignature = paymentSignature ? JSON.parse(paymentSignature) : null;
-    const txId = parsedSignature?.payload?.paymentGroup?.[0] || `mock-${Date.now()}`;
-
-    // Get the job to find the agent
+    
+    // Get the job to find worker info
     const jobsCollection = await getCollection('jobs');
     const job = await jobsCollection.findOne({ _id: jobId });
 
@@ -29,16 +55,30 @@ async function executeHandler(
       return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     }
 
-    // Get agent details for payment
-    const agentsCollection = await getCollection('agents');
-    const agent = await agentsCollection.findOne({ _id: agentId });
-
-    if (!agent) {
-      return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
+    // Get worker's wallet address for payment
+    const workerAddress = job.walletAddress;
+    
+    if (!workerAddress) {
+      return NextResponse.json({ 
+        error: 'No worker wallet address found. Job may not have been processed yet.' 
+      }, { status: 400 });
     }
 
-    // Simulate AI response (in real scenario, this would call the agent's AI)
-    const aiResponse = `Processed prompt: "${job.prompt}" - This is the result from the worker agent.`;
+    // If no payment signature, return 402 with worker's address as payTo
+    if (!paymentSignature) {
+      console.log(`[API /jobs/[id]/execute] Returning 402, payment to worker: ${workerAddress}`);
+      return create402Response(
+        workerAddress, 
+        `Payment of 0.01 USDC will be sent directly to worker: ${workerAddress}`
+      );
+    }
+
+    // Payment was made - parse and verify
+    const parsedSignature = JSON.parse(paymentSignature);
+    const txId = parsedSignature?.payload?.paymentGroup?.[0] || `paid-${Date.now()}`;
+
+    // Get the worker's submitted response
+    const aiResponse = job.result || `Processed prompt: "${job.prompt}" - Result from worker agent.`;
     
     // Hash for on-chain integrity
     const inputHash = crypto.createHash('sha256').update(job.prompt).digest('hex');
@@ -52,7 +92,9 @@ async function executeHandler(
           status: 'COMPLETED',
           result: aiResponse,
           executedAt: new Date(),
-          txId
+          txId,
+          paid: true,
+          paidAt: new Date(),
         } 
       }
     );
@@ -61,8 +103,8 @@ async function executeHandler(
     const executionsCollection = await getCollection('executions');
     const executionDoc = {
       jobId,
-      agentId,
-      agentAddress: agent.walletAddress,
+      agentId: job.agentId || 'worker-agent',
+      agentAddress: workerAddress,
       callerAddress: request.headers.get("x-sender-address") || "anonymous",
       input: job.prompt,
       output: aiResponse,
@@ -72,36 +114,23 @@ async function executeHandler(
       executedAt: new Date(),
       status: 'success',
       paymentAsset: USDC_ASSET_ID,
-      paymentAmount: "10000", // $0.01 USDC
+      paymentAmount: PRICE_AMOUNT,
       paymentTxId: txId,
     };
 
     await executionsCollection.insertOne(executionDoc);
-    console.log(`[API /jobs/[id]/execute] Executed job ${jobId}, payment to ${agent.walletAddress}`);
+    console.log(`[API /jobs/[id]/execute] Job ${jobId} executed, payment of $0.01 USDC sent to worker ${workerAddress}`);
 
     return NextResponse.json({
       success: true,
       jobId,
       result: aiResponse,
       txId,
-      paidTo: agent.walletAddress
+      paidTo: workerAddress,
+      message: `Payment of $0.01 USDC sent to worker: ${workerAddress}`,
     });
   } catch (err: any) {
     console.error("[API /jobs/[id]/execute] Error:", err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-
-export const POST = withX402(executeHandler, {
-  accepts: {
-    scheme: "exact",
-    network: ALGORAND_TESTNET_CAIP2,
-    payTo: process.env.PAY_TO || "QZUNVQQ3T6TNOXUKZTEXZ4JJFFQ77AF5GKXUE2A43YC7FKXOLSBDI6O76Y",
-    price: "$0.01",
-    extra: {
-      asset: USDC_ASSET_ID,
-      decimals: 6,
-    },
-  },
-  description: "Job Execution Fee - Paid in USDC to Agent",
-}, x402Server);

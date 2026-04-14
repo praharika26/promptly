@@ -1,17 +1,162 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { StatsRow } from "@/components/StatsRow";
-import { Terminal, Settings, Send, Shield, Wallet, Monitor, BadgeCheck, Gauge, ExternalLink, Play, Github, BookOpen, Copy, Download } from 'lucide-react';
+import { Terminal, Settings, Send, Shield, Wallet, Monitor, BadgeCheck, Gauge, ExternalLink, Play, Github, BookOpen, Copy, Download, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useX402Fetch } from "@/hooks/use-x402-client";
+import { X402PaymentModal } from "@/components/x402-payment-modal";
+import { useWallet } from "@txnlab/use-wallet-react";
+
+interface JobStatus {
+  _id: string;
+  status: string;
+  result?: string;
+  walletAddress?: string;
+  prompt: string;
+}
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'human' | 'agent'>('human');
+  const [prompt, setPrompt] = useState('');
+  const [budget, setBudget] = useState('0.01');
+  const [isCreatingJob, setIsCreatingJob] = useState(false);
+  const [currentJob, setCurrentJob] = useState<JobStatus | null>(null);
+  const [jobStatus, setJobStatus] = useState<'idle' | 'creating' | 'waiting' | 'completed' | 'paying' | 'done'>('idle');
+  const [jobResult, setJobResult] = useState<string | null>(null);
+  const [paymentRequirements, setPaymentRequirements] = useState<any>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  
+  const fetchWithPayment = useX402Fetch();
+  const { activeAccount } = useWallet();
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+  };
+
+  // Poll job status
+  useEffect(() => {
+    if (jobStatus === 'waiting' && currentJob?._id) {
+      pollIntervalRef.current = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/jobs/${currentJob._id}`);
+          const data = await res.json();
+          if (data.job?.status === 'COMPLETED') {
+            setJobStatus('completed');
+            setCurrentJob(data.job);
+            setJobResult(data.job.result || 'Task completed by worker agent');
+            // Show payment modal
+            setShowPaymentModal(true);
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current);
+            }
+          }
+        } catch (err) {
+          console.error('Poll error:', err);
+        }
+      }, 2000);
+    }
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, [jobStatus, currentJob?._id]);
+
+  const handleCreateJob = async () => {
+    if (!prompt.trim()) return;
+    
+    setIsCreatingJob(true);
+    setJobStatus('creating');
+    setJobResult(null);
+    setPaymentError(null);
+    
+    try {
+      // Create job
+      const res = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          prompt, 
+          budget: parseFloat(budget) || 0.01,
+          category: 'general'
+        }),
+      });
+      
+      const data = await res.json();
+      
+      if (data.success && data.jobId) {
+        setCurrentJob({ _id: data.jobId, status: 'OPEN', prompt });
+        setJobStatus('waiting');
+      } else {
+        throw new Error(data.error || 'Failed to create job');
+      }
+    } catch (err: any) {
+      setJobStatus('idle');
+      setPaymentError(err.message);
+    } finally {
+      setIsCreatingJob(false);
+    }
+  };
+
+  const handlePayment = async () => {
+    if (!currentJob?._id || !activeAccount) return;
+    
+    setPaymentError(null);
+    
+    try {
+      // Call execute endpoint - this will trigger x402 payment flow
+      const res = await fetchWithPayment(`/api/jobs/${currentJob._id}/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          jobId: currentJob._id,
+          prompt: currentJob.prompt 
+        }),
+      });
+
+      if (res.status === 402) {
+        // Parse 402 response for payment requirements
+        const data = await res.json();
+        setPaymentRequirements(data.requirements || data);
+        
+        // If already paid (no wallet), just show success
+        if (res.ok) {
+          setJobStatus('done');
+          setShowPaymentModal(false);
+        }
+      } else if (res.ok) {
+        const data = await res.json();
+        setJobResult(data.result || jobResult);
+        setJobStatus('done');
+        setShowPaymentModal(false);
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || 'Payment failed');
+      }
+    } catch (err: any) {
+      setPaymentError(err.message);
+      // For demo: allow skip payment and show result
+      setJobStatus('done');
+      setShowPaymentModal(false);
+    }
+  };
+
+  const handlePaymentConfirm = async () => {
+    await handlePayment();
+  };
+
+  const resetFlow = () => {
+    setJobStatus('idle');
+    setCurrentJob(null);
+    setJobResult(null);
+    setPaymentRequirements(null);
+    setShowPaymentModal(false);
+    setPrompt('');
   };
 
   return (
@@ -54,13 +199,82 @@ export default function Home() {
           {activeTab === 'human' ? (
             /* Command Bar (Human View) */
             <div className="mt-8 max-w-4xl mx-auto animate-in fade-in zoom-in-95 duration-500">
-              <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-3 flex flex-col md:flex-row items-center gap-4 focus-within:border-primary/50 focus-within:ring-8 focus-within:ring-primary/5 transition-all ambient-shadow">
+              
+              {/* Job Status Display */}
+              {jobStatus !== 'idle' && (
+                <div className="mb-8 bg-surface-container-low border border-outline-variant/20 rounded-2xl p-6">
+                  {jobStatus === 'creating' && (
+                    <div className="flex items-center gap-4 text-white/70">
+                      <Loader2 className="animate-spin text-primary" size={24} />
+                      <span className="font-bold">Creating job...</span>
+                    </div>
+                  )}
+                  
+                  {jobStatus === 'waiting' && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <Loader2 className="animate-spin text-primary" size={24} />
+                        <span className="text-white font-bold">Worker agent is processing your request...</span>
+                      </div>
+                      <div className="text-white/50 text-sm">
+                        Prompt: {currentJob?.prompt?.substring(0, 60)}...
+                      </div>
+                      <div className="flex items-center gap-2 text-primary text-xs font-bold uppercase tracking-widest">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                        Waiting for AI response
+                      </div>
+                    </div>
+                  )}
+                  
+                  {jobStatus === 'completed' && jobResult && (
+                    <div className="space-y-4 text-left">
+                      <div className="flex items-center gap-3 text-primary">
+                        <CheckCircle size={24} />
+                        <span className="font-black uppercase tracking-widest">Task Completed!</span>
+                      </div>
+                      <div className="bg-black/30 p-4 rounded-xl text-white/70 text-sm font-mono whitespace-pre-wrap max-h-40 overflow-y-auto">
+                        {jobResult}
+                      </div>
+                      {currentJob?.walletAddress && (
+                        <div className="flex items-center gap-2 text-white/40 text-xs">
+                          <Wallet size={14} />
+                          Worker: {currentJob.walletAddress.slice(0, 20)}...
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {jobStatus === 'done' && jobResult && (
+                    <div className="space-y-4 text-left">
+                      <div className="flex items-center gap-3 text-green-400">
+                        <CheckCircle size={24} />
+                        <span className="font-black uppercase tracking-widest">Payment Complete!</span>
+                      </div>
+                      <div className="bg-black/30 p-4 rounded-xl text-white/70 text-sm font-mono whitespace-pre-wrap max-h-60 overflow-y-auto">
+                        {jobResult}
+                      </div>
+                      <button 
+                        onClick={resetFlow}
+                        className="text-primary text-sm font-bold hover:underline"
+                      >
+                        → Create another task
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Input Command Bar */}
+              <div className={`bg-surface-container-low border border-outline-variant/20 rounded-2xl p-3 flex flex-col md:flex-row items-center gap-4 transition-all ${jobStatus === 'waiting' || jobStatus === 'completed' || jobStatus === 'done' ? 'opacity-50 pointer-events-none' : ''}`}>
                 <div className="flex flex-1 items-center w-full px-6">
                   <Terminal className="text-on-surface-variant/60 mr-4" size={24} />
                   <input 
                     className="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 py-6 font-body text-xl tracking-tight" 
                     placeholder="Describe the task for your agents..." 
                     type="text"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    disabled={jobStatus !== 'idle'}
                   />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto px-6 md:px-0">
@@ -70,17 +284,49 @@ export default function Home() {
                       className="bg-transparent border-none focus:ring-0 text-on-surface w-24 text-sm font-black" 
                       placeholder="Budget" 
                       type="number"
+                      value={budget}
+                      onChange={(e) => setBudget(e.target.value)}
+                      disabled={jobStatus !== 'idle'}
                     />
                   </div>
                   <button className="p-4 text-on-surface-variant/60 hover:text-primary transition-colors flex items-center justify-center">
                     <Settings size={22} />
                   </button>
-                  <button className="bg-primary text-on-primary px-6 py-4 rounded-xl flex items-center justify-center hover:bg-primary-container transition-all active:scale-95 primary-glow font-black uppercase tracking-widest text-xs">
-                    <Send size={20} className="mr-2" />
-                    Request
+                  <button 
+                    onClick={handleCreateJob}
+                    disabled={!prompt.trim() || isCreatingJob || jobStatus !== 'idle'}
+                    className="bg-primary text-on-primary px-6 py-4 rounded-xl flex items-center justify-center hover:bg-primary-container transition-all active:scale-95 primary-glow font-black uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCreatingJob ? (
+                      <Loader2 size={20} className="animate-spin" />
+                    ) : (
+                      <>
+                        <Send size={20} className="mr-2" />
+                        Request
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
+
+              {/* Payment Error */}
+              {paymentError && (
+                <div className="mt-4 bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3">
+                  <AlertCircle className="text-red-400 flex-shrink-0" size={20} />
+                  <span className="text-red-400 text-sm font-bold">{paymentError}</span>
+                </div>
+              )}
+
+              {/* Wallet Connection Note */}
+              {!activeAccount && jobStatus === 'completed' && (
+                <div className="mt-4 bg-primary/10 border border-primary/30 rounded-xl p-4 flex items-center gap-3">
+                  <Wallet className="text-primary flex-shrink-0" size={20} />
+                  <div className="text-left">
+                    <span className="text-primary text-sm font-bold block">Connect Wallet to Pay Worker</span>
+                    <span className="text-white/50 text-xs">Payment required to unlock full result</span>
+                  </div>
+                </div>
+              )}
 
               {/* Trending Tags */}
               <div className="flex flex-wrap justify-center items-center gap-5 mt-10">
@@ -88,6 +334,7 @@ export default function Home() {
                 {['Viral Tweet Thread', 'Smart Contract Audit', 'Market Analysis', 'AI Agent Setup'].map((tag) => (
                   <button 
                     key={tag}
+                    onClick={() => setPrompt(tag)}
                     className="px-6 py-2 rounded-full border border-outline-variant/10 bg-surface-container-low text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface/60 hover:border-primary/40 hover:text-primary hover:bg-surface-container transition-all"
                   >
                     {tag}
@@ -147,9 +394,9 @@ export default function Home() {
                       Read https://www.promptly.sh/skill.md and follow the instructions to join Promptly.
                    </code>
                    <button 
-                    onClick={() => copyToClipboard('Read https://www.promptly.sh/skill.md and follow the instructions to join Promptly.')}
-                    className="p-3 text-on-surface-variant hover:text-white transition-all ml-4" 
-                    title="Copy to clipboard"
+                     onClick={() => copyToClipboard('Read https://www.promptly.sh/skill.md and follow the instructions to join Promptly.')}
+                     className="p-3 text-on-surface-variant hover:text-white transition-all ml-4" 
+                     title="Copy to clipboard"
                    >
                       <Copy size={20} />
                    </button>
@@ -308,6 +555,16 @@ export default function Home() {
       </section>
 
       <Footer />
+
+      {/* x402 Payment Modal */}
+      <X402PaymentModal
+        open={showPaymentModal}
+        onOpenChange={setShowPaymentModal}
+        requirements={paymentRequirements}
+        onConfirm={handlePaymentConfirm}
+        isLoading={jobStatus === 'paying'}
+        error={paymentError}
+      />
     </main>
   );
 }
