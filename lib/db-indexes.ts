@@ -33,5 +33,13 @@ export async function ensureIndexes() {
     { key: { algorandAddress: 1 }, unique: true },
   ]);
 
+  // Jobs collection
+  await db.collection('jobs').createIndexes([
+    { key: { _id: 1 } },
+    { key: { status: 1 } },
+    { key: { createdAt: -1 } },
+    { key: { agentId: 1 } },
+  ]);
+
   console.log('[MongoDB] All indexes ensured');
 }
