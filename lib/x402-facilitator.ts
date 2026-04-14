@@ -2,34 +2,59 @@ import algosdk from "algosdk";
 import type { FacilitatorAvmSigner } from "@x402-avm/avm";
 import { x402Facilitator } from "@x402-avm/core/facilitator";
 import { registerExactAvmScheme } from "@x402-avm/avm/exact/facilitator";
+import { ALGORAND_TESTNET_CAIP2, ALGORAND_MAINNET_CAIP2 } from "@x402-avm/avm";
 
-// VERIFIED LocalNet Genesis Hash (via node script from local node)
-export const ALGORAND_LOCALNET_CAIP2 = "algorand:/gUcgn0fBwrVK9UfXytu8/2iFm3oTkSBsxcJa0+fG4E=";
+export const ALGORAND_LOCALNET_CAIP2 = "algorand:localnet-test";
+export { ALGORAND_TESTNET_CAIP2, ALGORAND_MAINNET_CAIP2 };
 
-const secretKey = Buffer.from(process.env.AVM_PRIVATE_KEY!, "base64");
-const address = algosdk.encodeAddress(secretKey.slice(32));
-const algodClient = new algosdk.Algodv2(
+const localnetSecretKey = Buffer.from(process.env.AVM_PRIVATE_KEY || process.env.LOCALNET_AVM_PRIVATE_KEY || "", "base64");
+const localnetAddress = algosdk.encodeAddress(localnetSecretKey.slice(32));
+
+const localnetAlgodClient = new algosdk.Algodv2(
   "a".repeat(64),
   "http://localhost",
   "4001"
 );
 
+const testnetAlgodClient = new algosdk.Algodv2(
+  "",
+  "https://testnet-api.algonode.cloud",
+  ""
+);
+
+const mainnetAlgodClient = new algosdk.Algodv2(
+  "",
+  "https://mainnet-api.algonode.cloud",
+  ""
+);
+
+function getAlgodClientForNetwork(network: string): algosdk.Algodv2 {
+  if (network.includes("testnet")) {
+    return testnetAlgodClient;
+  }
+  if (network.includes("mainnet") || !network.includes("/")) {
+    return mainnetAlgodClient;
+  }
+  return localnetAlgodClient;
+}
+
 const facilitatorSigner: FacilitatorAvmSigner = {
-  getAddresses: () => [address],
+  getAddresses: () => [localnetAddress],
 
   signTransaction: async (txn: Uint8Array, senderAddress: string) => {
     const decoded = algosdk.decodeUnsignedTransaction(txn);
-    const signed = algosdk.signTransaction(decoded, secretKey);
+    const signed = algosdk.signTransaction(decoded, localnetSecretKey);
     return signed.blob;
   },
 
   getAlgodClient: (network: string) => {
-    console.log(`[Facilitator] getAlgodClient called for: ${network}.`);
-    return algodClient;
+    console.log(`[Facilitator] getAlgodClient called for: ${network}`);
+    return getAlgodClientForNetwork(network);
   },
 
   simulateTransactions: async (txns: Uint8Array[], network: string) => {
-    console.log(`[Facilitator] simulateTransactions for: ${network}.`);
+    console.log(`[Facilitator] simulateTransactions for: ${network}`);
+    const client = getAlgodClientForNetwork(network);
     const stxns = txns.map((txnBytes) => {
       try {
         return algosdk.decodeSignedTransaction(txnBytes);
@@ -46,19 +71,21 @@ const facilitatorSigner: FacilitatorAvmSigner = {
       allowEmptySignatures: true,
     });
     
-    return algodClient.simulateTransactions(request).do();
+    return client.simulateTransactions(request).do();
   },
 
   sendTransactions: async (signedTxns: Uint8Array[], network: string) => {
-    console.log(`[Facilitator] Sending transactions to local node...`);
+    console.log(`[Facilitator] sendTransactions for: ${network}`);
+    const client = getAlgodClientForNetwork(network);
     const combined = Buffer.concat(signedTxns.map((t) => Buffer.from(t)));
-    const { txId } = await algodClient.sendRawTransaction(combined).do();
+    const { txId } = await client.sendRawTransaction(combined).do();
     return txId;
   },
 
   waitForConfirmation: async (txId: string, network: string, waitRounds = 4) => {
-    console.log(`[Facilitator] Waiting for confirmation on local node...`);
-    return algosdk.waitForConfirmation(algodClient, txId, waitRounds);
+    console.log(`[Facilitator] waitForConfirmation for: ${network}`);
+    const client = getAlgodClientForNetwork(network);
+    return algosdk.waitForConfirmation(client, txId, waitRounds);
   },
 };
 
@@ -73,5 +100,5 @@ facilitator.onSettleFailure((err) => console.error("[Facilitator] onSettleFailur
 
 registerExactAvmScheme(facilitator, {
   signer: facilitatorSigner,
-  networks: [ALGORAND_LOCALNET_CAIP2],
+  networks: [ALGORAND_LOCALNET_CAIP2, ALGORAND_TESTNET_CAIP2, ALGORAND_MAINNET_CAIP2],
 });

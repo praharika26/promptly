@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withX402 } from "@x402-avm/next";
 import { x402Server } from "@/lib/x402-server";
-import { ALGORAND_LOCALNET_CAIP2 } from "@/lib/x402-facilitator";
+import { ALGORAND_TESTNET_CAIP2 } from "@/lib/x402-facilitator";
 import { generateAgentResponse } from "@/lib/ai-provider";
 import { getCollection } from "@/lib/mongodb";
 import { CONTRACT_IDS } from "@/lib/algorand";
 import crypto from "crypto";
+
+const USDC_ASSET_ID = "10458941";
 
 async function executeHandler(req: NextRequest) {
   try {
@@ -40,6 +42,8 @@ async function executeHandler(req: NextRequest) {
       executedAt: new Date(),
       status: 'success',
       cost: 1000, // 0.001 ALGO
+      paymentAsset: USDC_ASSET_ID,
+      paymentAmount: "10000", // $0.01 USDC
     };
 
     await executionsCollection.insertOne(executionDoc);
@@ -60,13 +64,13 @@ async function executeHandler(req: NextRequest) {
 export const POST = withX402(executeHandler, {
   accepts: {
     scheme: "exact",
-    network: ALGORAND_LOCALNET_CAIP2,
+    network: ALGORAND_TESTNET_CAIP2,
     payTo: process.env.PAY_TO || "QZUNVQQ3T6TNOXUKZTEXZ4JJFFQ77AF5GKXUE2A43YC7FKXOLSBDI6O76Y",
     price: "$0.01",
     extra: {
-      asset: "0", // Native ALGO
+      asset: USDC_ASSET_ID, // USDC on Testnet
       decimals: 6,
     },
   },
-  description: "Agent Execution Fee",
+  description: "Agent Execution Fee - Paid in USDC",
 }, x402Server);
