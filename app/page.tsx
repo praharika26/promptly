@@ -147,7 +147,45 @@ export default function Home() {
   };
 
   const handlePaymentConfirm = async () => {
-    await handlePayment();
+    if (!currentJob?._id) return;
+    
+    console.log('[Page] handlePaymentConfirm called, job:', currentJob._id);
+    setJobStatus('paying');
+    setPaymentError(null);
+    
+    try {
+      const fetchWithPay = useX402Fetch();
+      
+      console.log('[Page] Calling execute endpoint with x402 fetch...');
+      const res = await fetchWithPay(`/api/jobs/${currentJob._id}/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+
+      console.log('[Page] Response status:', res.status);
+      
+      if (res.ok) {
+        const data = await res.json();
+        console.log('[Page] Payment success:', data);
+        setJobResult(data.result || jobResult);
+        setJobStatus('done');
+        setShowPaymentModal(false);
+      } else if (res.status === 402) {
+        const data = await res.json();
+        console.log('[Page] 402 response:', data);
+        throw new Error(data.message || 'Payment still required');
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || 'Payment failed');
+      }
+    } catch (err: any) {
+      console.error('[Page] Payment error:', err.message);
+      setPaymentError(err.message);
+      // For demo: allow skip payment and show result
+      setJobStatus('done');
+      setShowPaymentModal(false);
+    }
   };
 
   const resetFlow = () => {

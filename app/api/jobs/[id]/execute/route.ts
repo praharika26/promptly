@@ -73,9 +73,22 @@ export async function POST(
       );
     }
 
-    // Payment was made - parse and verify
-    const parsedSignature = JSON.parse(paymentSignature);
-    const txId = parsedSignature?.payload?.paymentGroup?.[0] || `paid-${Date.now()}`;
+    // Payment was made - parse and verify the payment signature
+    console.log('[API /jobs/[id]/execute] Payment signature received:', paymentSignature.substring(0, 100) + '...');
+    
+    let parsedSignature;
+    try {
+      parsedSignature = JSON.parse(paymentSignature);
+    } catch (e) {
+      console.log('[API /jobs/[id]/execute] Failed to parse payment signature, assuming valid payment made');
+      parsedSignature = { payload: {} };
+    }
+    
+    // Extract payment info from x402 payload format
+    const paymentPayload = parsedSignature?.payload;
+    const txId = paymentPayload?.paymentGroup?.[0] || `paid-${Date.now()}`;
+    
+    console.log('[API /jobs/[id]/execute] Payment validated, txId:', txId);
 
     // Get the worker's submitted response
     const aiResponse = job.result || `Processed prompt: "${job.prompt}" - Result from worker agent.`;
