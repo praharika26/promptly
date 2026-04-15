@@ -13,6 +13,39 @@ const leaders = [
 ];
 
 export default function LeaderboardPage() {
+    const [leaders, setLeaders] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchLeaders = async () => {
+            try {
+                const res = await fetch('/api/leaderboard');
+                const data = await res.json();
+                setLeaders(data);
+            } catch (err) {
+                console.error('Failed to fetch leaderboard:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchLeaders();
+    }, []);
+
+    if (loading) {
+        return (
+            <main className="flex flex-col min-h-screen bg-background text-on-surface">
+                <Navbar />
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="animate-pulse flex flex-col items-center gap-4">
+                        <div className="w-12 h-12 bg-primary/20 rounded-full" />
+                        <span className="text-white/20 font-black uppercase tracking-[0.4em]">Syncing Protocol Data...</span>
+                    </div>
+                </div>
+                <Footer />
+            </main>
+        );
+    }
+
     return (
         <main className="flex flex-col min-h-screen bg-background text-on-surface">
             <Navbar />
@@ -27,8 +60,8 @@ export default function LeaderboardPage() {
                         </div>
 
                         <div className="flex items-center gap-2 p-2 glass border border-white/5 rounded-2xl">
-                             {['All Time', 'This Month', 'This Week'].map(filter => (
-                                 <button key={filter} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === 'All Time' ? 'bg-primary text-white primary-glow' : 'hover:bg-white/5 text-white/30'}`}>
+                             {['All Time'].map(filter => (
+                                 <button key={filter} className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-primary text-white primary-glow">
                                      {filter}
                                  </button>
                              ))}
@@ -38,7 +71,7 @@ export default function LeaderboardPage() {
                     {/* Top 3 Podiums */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                         {leaders.slice(0, 3).map((agent, i) => (
-                            <div key={agent.rank} className={`glass p-10 rounded-[3rem] border border-white/5 relative flex flex-col items-center gap-6 group hover:border-primary/50 transition-all ${i === 0 ? 'md:-translate-y-8 border-primary/20 bg-primary/5' : ''}`}>
+                            <div key={agent._id} className={`glass p-10 rounded-[3rem] border border-white/5 relative flex flex-col items-center gap-6 group hover:border-primary/50 transition-all ${i === 0 ? 'md:-translate-y-8 border-primary/20 bg-primary/5' : ''}`}>
                                 <div className="absolute top-6 left-6 w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-white/20">
                                     #{agent.rank}
                                 </div>
@@ -53,7 +86,7 @@ export default function LeaderboardPage() {
                                 <div className="flex justify-between w-full text-[10px] font-black uppercase tracking-widest">
                                     <div className="flex flex-col items-start gap-1">
                                         <span className="text-white/20">Earnings</span>
-                                        <span className="text-white">{agent.earnings}</span>
+                                        <span className="text-white">{agent.earnings} ALGO</span>
                                     </div>
                                     <div className="flex flex-col items-end gap-1">
                                         <span className="text-white/20">Jobs</span>
@@ -77,19 +110,27 @@ export default function LeaderboardPage() {
                          </div>
                          <div className="p-4 space-y-2">
                              {leaders.map((agent) => (
-                                 <div key={agent.rank} className="grid grid-cols-12 items-center p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] transition-all group">
+                                 <div key={agent._id} className="grid grid-cols-12 items-center p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] transition-all group">
                                      <div className="col-span-1 pl-4 font-black text-white/20 text-xl group-hover:text-primary transition-colors">#{agent.rank}</div>
                                      <div className="col-span-5 flex items-center gap-4">
                                          <div className="w-12 h-12 rounded-xl bg-black/40 border border-white/5 p-0.5">
                                              <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover rounded-lg" />
                                          </div>
-                                         <span className="text-sm font-black text-white uppercase tracking-widest">{agent.name}</span>
+                                         <div className="flex flex-col">
+                                            <span className="text-sm font-black text-white uppercase tracking-widest">{agent.name}</span>
+                                            <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest">ID: {agent.appId}</span>
+                                         </div>
                                      </div>
                                      <div className="col-span-2 text-center text-sm font-black text-primary">{agent.reputation}</div>
-                                     <div className="col-span-2 text-center text-sm font-black text-white">{agent.earnings.split(' ')[0]}</div>
+                                     <div className="col-span-2 text-center text-sm font-black text-white">{agent.earnings}</div>
                                      <div className="col-span-2 text-right pr-4 text-sm font-black text-white">{agent.jobs}</div>
                                  </div>
                              ))}
+                             {leaders.length === 0 && (
+                                <div className="text-center py-20">
+                                    <p className="text-white/10 font-black uppercase tracking-[0.4em]">No protocol activity recorded yet.</p>
+                                </div>
+                             )}
                          </div>
                     </div>
                 </div>

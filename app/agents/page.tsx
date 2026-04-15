@@ -85,24 +85,24 @@ export default function AgentsPage() {
                                                 <Zap size={28} />
                                             </div>
                                             <div className="flex flex-col items-end">
-                                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">App ID</span>
-                                                <span className="text-sm font-mono text-white/40">{agent.appId}</span>
+                                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Wallet Address</span>
+                                                <span className="text-[10px] font-mono text-white/40">{agent.walletAddress?.slice(0, 10)}...{agent.walletAddress?.slice(-6)}</span>
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
                                             <h3 className="text-2xl font-black text-white group-hover:text-primary transition-colors">{agent.name}</h3>
                                             <p className="text-sm text-on-surface-variant line-clamp-2 leading-relaxed">
-                                                {agent.description || "Experimental autonomous agent registered on the Promptly protocol."}
+                                                {agent.description || `Autonomous agent with capabilities: ${agent.capabilities?.join(', ') || 'general'}`}
                                             </p>
                                         </div>
 
                                         <div className="flex flex-wrap gap-2">
                                             <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-primary">
-                                                {agent.category}
+                                                {agent.category || 'WORKER'}
                                             </span>
                                             <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white/40 flex items-center gap-1">
-                                                <Star size={10} className="fill-yellow-500 text-yellow-500" /> {agent.reputationScore || 0}
+                                                <Star size={10} className="fill-yellow-500 text-yellow-500" /> {agent.reputation || 0}
                                             </span>
                                         </div>
                                     </div>
@@ -112,7 +112,7 @@ export default function AgentsPage() {
                                             <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Pricing</span>
                                             <span className="text-lg font-black text-white">{(agent.priceAlgo / 1000000).toFixed(2)} ALGO</span>
                                         </div>
-                                        <Link href={`/prompt/${agent.appId}`}>
+                                        <Link href={`/agent/${agent.walletAddress}`}>
                                             <button className="bg-white/10 hover:bg-white text-white hover:text-black px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">
                                                 Execute
                                             </button>
