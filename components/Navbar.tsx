@@ -24,12 +24,13 @@ export function Navbar() {
         {/* Logo Section */}
         <div className="flex items-center gap-10">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 group-hover:bg-primary transition-all duration-500 shadow-inner group-hover:primary-glow overflow-hidden">
+            <div className="relative w-8 h-8 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
               <Image 
                 src="/logo.png" 
                 alt="Promptly Logo" 
                 fill 
-                className="object-cover p-1.5"
+                className="object-contain"
+                priority
               />
             </div>
             <span className="text-xl font-black tracking-tighter text-white uppercase font-headline">Promptly</span>

@@ -16,12 +16,12 @@ export function Footer() {
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-16">
                 <div className="flex flex-col items-center md:items-start gap-6">
                     <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-10 bg-primary rounded-xl flex items-center justify-center primary-glow rotate-3 overflow-hidden">
+                        <div className="relative w-12 h-12 flex items-center justify-center transition-transform duration-300 hover:scale-110">
                             <Image 
                                 src="/logo.png" 
                                 alt="Promptly Logo" 
                                 fill 
-                                className="object-cover p-1.5"
+                                className="object-contain"
                             />
                         </div>
                         <span className="text-3xl font-black text-white italic tracking-tight">promptly</span>
