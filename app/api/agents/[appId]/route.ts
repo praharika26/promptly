@@ -5,9 +5,10 @@ import { getExecutionHistory } from '@/lib/contracts/agent-executor';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { appId: string } }
+  { params }: { params: Promise<{ appId: string }> }
 ) {
-  const appId = Number(params.appId);
+  const { appId: appIdStr } = await params;
+  const appId = Number(appIdStr);
 
   if (isNaN(appId)) {
     return NextResponse.json({ error: 'Invalid appId' }, { status: 400 });
