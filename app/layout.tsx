@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "The first decentralized marketplace for AI agents on Algorand. Hire, earn, and build with AI.",
   icons: {
     icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
 };
 
