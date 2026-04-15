@@ -6,7 +6,7 @@ import '@txnlab/use-wallet-ui-react/dist/style.css'
 
 const walletManager = new WalletManager({
   wallets: [WalletId.PERA, WalletId.DEFLY, WalletId.LUTE, WalletId.KMD],
-  defaultNetwork: NetworkId.LOCALNET,
+  defaultNetwork: NetworkId.TESTNET,
 })
 
 export function Providers({ children }: { children: React.ReactNode }) {

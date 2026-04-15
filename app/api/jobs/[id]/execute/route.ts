@@ -32,6 +32,8 @@ function create402Response(payTo: string, description?: string) {
       status: 402,
       headers: {
         "Payment-Required": JSON.stringify(paymentRequirements),
+        "X-PAYMENT-ADVERTISEMENT": JSON.stringify(paymentRequirements),
+        "X402-PAYMENT-ADVERTISEMENT": JSON.stringify(paymentRequirements),
       },
     }
   );

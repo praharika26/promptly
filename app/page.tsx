@@ -45,11 +45,10 @@ export default function Home() {
           const res = await fetch(`/api/jobs/${currentJob._id}`);
           const data = await res.json();
           if (data.job?.status === 'COMPLETED') {
-            setJobStatus('completed');
+            setJobStatus('done'); // Set to 'done' directly since it's already paid
             setCurrentJob(data.job);
             setJobResult(data.job.result || 'Task completed by worker agent');
-            // Show payment modal
-            setShowPaymentModal(true);
+            // No payment modal needed anymore
             if (pollIntervalRef.current) {
               clearInterval(pollIntervalRef.current);
             }
@@ -76,8 +75,9 @@ export default function Home() {
     setPaymentError(null);
     
     try {
-      // Create job
-      const res = await fetch('/api/jobs', {
+      // Create job - this will now trigger x402 payment upfront
+      console.log('[Page] Creating job with fetchWithPayment...');
+      const res = await fetchWithPayment('/api/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -154,10 +154,8 @@ export default function Home() {
     setPaymentError(null);
     
     try {
-      const fetchWithPay = useX402Fetch();
-      
       console.log('[Page] Calling execute endpoint with x402 fetch...');
-      const res = await fetchWithPay(`/api/jobs/${currentJob._id}/execute`, {
+      const res = await fetchWithPayment(`/api/jobs/${currentJob._id}/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
