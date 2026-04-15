@@ -17,6 +17,13 @@ interface JobStatus {
   prompt: string;
 }
 
+interface LogEntry {
+  id: string;
+  timestamp: Date;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error' | 'x402' | 'agent';
+}
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'human' | 'agent'>('human');
   const [prompt, setPrompt] = useState('');
@@ -28,10 +35,29 @@ export default function Home() {
   const [paymentRequirements, setPaymentRequirements] = useState<any>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [isConsoleOpen, setIsConsoleOpen] = useState(true);
   
   const fetchWithPayment = useX402Fetch();
   const { activeAccount } = useWallet();
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const addLog = (message: string, type: LogEntry['type'] = 'info') => {
+    const newLog = {
+      id: Math.random().toString(36).substring(7),
+      timestamp: new Date(),
+      message,
+      type
+    };
+    setLogs(prev => [...prev.slice(-15), newLog]); // Keep last 16 logs
+  };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [logs]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -45,6 +71,8 @@ export default function Home() {
           const res = await fetch(`/api/jobs/${currentJob._id}`);
           const data = await res.json();
           if (data.job?.status === 'COMPLETED') {
+            addLog(`Agent ${data.job.walletAddress?.slice(0, 8)}... completed the task.`, 'agent');
+            addLog(`Result payload received: ${data.job.result?.length} bytes.`, 'success');
             setJobStatus('done'); // Set to 'done' directly since it's already paid
             setCurrentJob(data.job);
             setJobResult(data.job.result || 'Task completed by worker agent');
@@ -52,6 +80,8 @@ export default function Home() {
             if (pollIntervalRef.current) {
               clearInterval(pollIntervalRef.current);
             }
+          } else {
+             addLog(`Polling job ${currentJob._id.slice(0, 8)}... status: ${data.job?.status}`, 'info');
           }
         } catch (err) {
           console.error('Poll error:', err);
@@ -74,9 +104,11 @@ export default function Home() {
     setJobResult(null);
     setPaymentError(null);
     
+    addLog(`Initiating job creation: "${prompt.substring(0, 30)}..."`, 'info');
+    
     try {
       // Create job — x402 payment is required, fetchWithPayment handles the 402 flow
-      console.log('[Page] Creating job with fetchWithPayment...');
+      addLog('X402: Sending POST /api/jobs (Payment Required)', 'x402');
       const res = await fetchWithPayment('/api/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -90,12 +122,15 @@ export default function Home() {
       const data = await res.json();
       
       if (data.success && data.jobId) {
+        addLog(`Job created successfully. ID: ${data.jobId.slice(0, 12)}...`, 'success');
+        addLog(`Waiting for an autonomous agent to pick up the job...`, 'info');
         setCurrentJob({ _id: data.jobId, status: 'OPEN', prompt });
         setJobStatus('waiting');
       } else {
         throw new Error(data.error || 'Failed to create job');
       }
     } catch (err: any) {
+      addLog(`Error: ${err.message}`, 'error');
       setJobStatus('idle');
       setPaymentError(err.message);
     } finally {
@@ -149,36 +184,35 @@ export default function Home() {
   const handlePaymentConfirm = async () => {
     if (!currentJob?._id) return;
     
-    console.log('[Page] handlePaymentConfirm called, job:', currentJob._id);
+    addLog(`Confirming payment for job ${currentJob._id.slice(0, 8)}...`, 'info');
     setJobStatus('paying');
     setPaymentError(null);
     
     try {
-      console.log('[Page] Calling execute endpoint with x402 fetch...');
+      addLog('X402: Requesting unsigned txn from server...', 'x402');
       const res = await fetchWithPayment(`/api/jobs/${currentJob._id}/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       });
 
-      console.log('[Page] Response status:', res.status);
-      
       if (res.ok) {
+        addLog('X402: Transaction signed and verified.', 'success');
         const data = await res.json();
-        console.log('[Page] Payment success:', data);
+        addLog(`Protocol execution complete. Hash: ${data.txId?.slice(0, 10)}...`, 'agent');
         setJobResult(data.result || jobResult);
         setJobStatus('done');
         setShowPaymentModal(false);
       } else if (res.status === 402) {
+        addLog('X402: 402 Payment Required status received.', 'warning');
         const data = await res.json();
-        console.log('[Page] 402 response:', data);
         throw new Error(data.message || 'Payment still required');
       } else {
         const data = await res.json();
         throw new Error(data.error || 'Payment failed');
       }
     } catch (err: any) {
-      console.error('[Page] Payment error:', err.message);
+      addLog(`X402 Error: ${err.message}`, 'error');
       setPaymentError(err.message);
       // For demo: allow skip payment and show result
       setJobStatus('done');
@@ -205,6 +239,91 @@ export default function Home() {
           <h1 className="text-6xl md:text-[5.5rem] font-extrabold tracking-[-0.04em] mb-12 leading-[1.0] font-headline text-gradient animate-in fade-in slide-in-from-bottom-8 duration-700">
             PROMPTLY
           </h1>
+
+          {/* Console Overlay (Slide-out Technical View) */}
+          {activeTab === 'human' && (
+            <>
+              {/* Floating Toggle Button */}
+              <button 
+                onClick={() => setIsConsoleOpen(!isConsoleOpen)}
+                className={`fixed left-0 top-1/2 -translate-y-1/2 z-[60] bg-primary text-on-primary p-3 rounded-r-2xl shadow-2xl primary-glow transition-all duration-500 flex flex-col items-center gap-2 group ${isConsoleOpen ? 'translate-x-80' : 'translate-x-0'}`}
+              >
+                <Terminal size={18} className={`${isConsoleOpen ? 'rotate-90' : 'rotate-0'} transition-transform duration-500`} />
+                <span className="[writing-mode:vertical-lr] text-[8px] font-black uppercase tracking-[0.3em] py-2">
+                  {isConsoleOpen ? 'Close Console' : 'Open Console'}
+                </span>
+              </button>
+
+              {/* Slide-out Console Drawer */}
+              <div className={`fixed left-0 top-0 bottom-0 z-50 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${isConsoleOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                 <div className="w-80 h-full bg-[#0a0a0b]/95 backdrop-blur-2xl border-r border-white/5 flex flex-col shadow-[20px_0_50px_rgba(0,0,0,0.5)]">
+                    
+                    <div className="p-10 border-b border-white/5 bg-white/[0.02] flex items-center justify-between mt-20">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                          <span className="text-xs font-black text-white uppercase tracking-[0.2em]">Live Trace</span>
+                        </div>
+                        <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Protocol Debugger (Testnet)</span>
+                      </div>
+                      <Monitor className="text-white/10" size={24} />
+                    </div>
+
+                    <div 
+                      ref={scrollRef}
+                      className="flex-1 p-8 overflow-y-auto space-y-6 scrollbar-none"
+                    >
+                      {logs.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-10">
+                          <Terminal size={80} strokeWidth={0.5} />
+                          <div className="space-y-1">
+                            <p className="text-[10px] uppercase font-black tracking-[0.4em]">Listening</p>
+                            <p className="text-[8px] uppercase font-bold tracking-widest">Awaiting packet transmission...</p>
+                          </div>
+                        </div>
+                      ) : (
+                        logs.map(log => (
+                          <div key={log.id} className="text-left animate-in slide-in-from-left-4 duration-500">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-[9px] font-mono text-white/20 bg-white/5 px-1.5 py-0.5 rounded">
+                                {log.timestamp.toLocaleTimeString([], { hour12: false })}
+                              </span>
+                              <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${
+                                log.type === 'x402' ? 'bg-primary/20 text-primary' :
+                                log.type === 'success' ? 'bg-green-500/20 text-green-500' :
+                                log.type === 'agent' ? 'bg-blue-500/20 text-blue-500' :
+                                log.type === 'error' ? 'bg-red-500/20 text-red-500' :
+                                'bg-white/5 text-white/40'
+                              }`}>
+                                {log.type}
+                              </span>
+                            </div>
+                            <p className={`text-xs font-mono leading-relaxed pl-1 border-l-2 ${
+                              log.type === 'error' ? 'text-red-400 border-red-500/40' : 
+                              log.type === 'success' ? 'text-green-300 border-green-500/40' : 
+                              'text-white/60 border-white/5'
+                            }`}>
+                              {log.message}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="p-8 border-t border-white/5 bg-black/20 space-y-4">
+                       <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.2em]">
+                         <span className="text-white/20">Algorand RPC</span>
+                         <span className="text-green-500">Connected</span>
+                       </div>
+                       <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.2em]">
+                         <span className="text-white/20">X402 API</span>
+                         <span className="text-primary">Ready</span>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+            </>
+          )}
 
           {/* Tab Switcher */}
           <div className="flex justify-center mb-12 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-100">
