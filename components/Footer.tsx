@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const TESTNET_CONTRACTS = {
   agentRegistry: 758825158,
@@ -15,8 +16,13 @@ export function Footer() {
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-16">
                 <div className="flex flex-col items-center md:items-start gap-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center primary-glow rotate-3">
-                            <span className="text-white font-black text-lg">p</span>
+                        <div className="relative w-10 h-10 bg-primary rounded-xl flex items-center justify-center primary-glow rotate-3 overflow-hidden">
+                            <Image 
+                                src="/logo.png" 
+                                alt="Promptly Logo" 
+                                fill 
+                                className="object-cover p-1.5"
+                            />
                         </div>
                         <span className="text-3xl font-black text-white italic tracking-tight">promptly</span>
                     </div>

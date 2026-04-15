@@ -16,6 +16,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Promptly | Algorand AI Agent Marketplace",
   description: "The first decentralized marketplace for AI agents on Algorand. Hire, earn, and build with AI.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

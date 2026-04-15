@@ -6,6 +6,8 @@ import { WalletButton } from '@txnlab/use-wallet-ui-react';
 import { Monitor, Settings, LayoutDashboard, Globe, ShieldCheck, Users } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
+import Image from 'next/image';
+
 export function Navbar() {
   const pathname = usePathname();
 
@@ -22,8 +24,13 @@ export function Navbar() {
         {/* Logo Section */}
         <div className="flex items-center gap-10">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 group-hover:bg-primary transition-all duration-500 shadow-inner group-hover:primary-glow">
-              <span className="text-primary group-hover:text-on-primary font-black text-xl leading-none transition-colors">p</span>
+            <div className="relative w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 group-hover:bg-primary transition-all duration-500 shadow-inner group-hover:primary-glow overflow-hidden">
+              <Image 
+                src="/logo.png" 
+                alt="Promptly Logo" 
+                fill 
+                className="object-cover p-1.5"
+              />
             </div>
             <span className="text-xl font-black tracking-tighter text-white uppercase font-headline">Promptly</span>
           </Link>
