@@ -75,7 +75,7 @@ export default function Home() {
     setPaymentError(null);
     
     try {
-      // Create job - this will now trigger x402 payment upfront
+      // Create job — x402 payment is required, fetchWithPayment handles the 402 flow
       console.log('[Page] Creating job with fetchWithPayment...');
       const res = await fetchWithPayment('/api/jobs', {
         method: 'POST',

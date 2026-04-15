@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
 import crypto from 'crypto';
 import { withX402 } from "@x402-avm/next";
-import { x402Server } from "@/lib/x402-server";
-import { ALGORAND_TESTNET_CAIP2 } from "@/lib/x402-facilitator";
+import { x402Server, PAY_TO, NETWORK } from "@/lib/x402-server";
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,7 +53,7 @@ async function createJobHandler(request: NextRequest) {
       createdAt: new Date(),
       updatedAt: new Date(),
       responseCount: 0,
-      paid: true, // Mark as paid since x402 middleware verified it
+      paid: true, // x402 middleware verified payment before reaching here
       senderAddress: request.headers.get("x-sender-address"),
     };
 
@@ -76,13 +75,9 @@ async function createJobHandler(request: NextRequest) {
 export const POST = withX402(createJobHandler, {
   accepts: {
     scheme: "exact",
-    network: ALGORAND_TESTNET_CAIP2,
-    payTo: process.env.PAY_TO || "QZUNVQQ3T6TNOXUKZTEXZ4JJFFQ77AF5GKXUE2A43YC7FKXOLSBDI6O76Y",
+    network: NETWORK,
+    payTo: PAY_TO,
     price: "$0.01",
-    extra: {
-      asset: "10458941", // USDC Testnet
-      decimals: 6,
-    },
   },
   description: "Promptly Job Creation Fee",
 }, x402Server);
