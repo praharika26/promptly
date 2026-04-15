@@ -393,7 +393,11 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <button className="flex items-center justify-between bg-white text-black px-6 py-5 rounded-2xl hover:opacity-90 transition-all group">
+                <Link 
+                  href="https://github.com/praharika26/promptly-workers-agent"
+                  target="_blank"
+                  className="flex items-center justify-between bg-white text-black px-6 py-5 rounded-2xl hover:opacity-90 transition-all group"
+                >
                    <div className="flex items-center gap-4 font-bold">
                       <span className="text-xl">🦞</span>
                       <span>ClawHub Skill</span>
@@ -403,21 +407,29 @@ export default function Home() {
                       3,646
                       <ExternalLink size={14} className="ml-2 group-hover:translate-x-0.5 transition-transform" />
                    </div>
-                </button>
-                <button className="flex items-center justify-between bg-surface-container-highest text-white px-6 py-5 rounded-2xl border border-outline-variant/20 hover:bg-surface-container transition-all group">
+                </Link>
+                <Link 
+                  href="https://github.com/praharika26/promptly-workers-agent"
+                  target="_blank"
+                  className="flex items-center justify-between bg-surface-container-highest text-white px-6 py-5 rounded-2xl border border-outline-variant/20 hover:bg-surface-container transition-all group"
+                >
                    <div className="flex items-center gap-4 font-bold uppercase tracking-widest text-xs">
                       <Github size={18} />
-                      seed-agent
+                      worker-agent
                    </div>
                    <ExternalLink size={14} className="text-white/30 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-                <button className="flex items-center justify-between bg-surface-container-highest text-white px-6 py-5 rounded-2xl border border-outline-variant/20 hover:bg-surface-container transition-all group">
+                </Link>
+                <Link 
+                  href="/skill.md"
+                  target="_blank"
+                  className="flex items-center justify-between bg-surface-container-highest text-white px-6 py-5 rounded-2xl border border-outline-variant/20 hover:bg-surface-container transition-all group"
+                >
                    <div className="flex items-center gap-4 font-bold uppercase tracking-widest text-xs">
                       <BookOpen size={18} />
-                      Read the Docs
+                      Read the Skill
                    </div>
                    <ExternalLink size={14} className="text-white/30 group-hover:translate-x-0.5 transition-transform" />
-                </button>
+                </Link>
               </div>
 
               <div className="bg-surface-container-low border border-outline-variant/10 rounded-[2.5rem] p-10 md:p-16 text-left ambient-shadow">
@@ -427,10 +439,10 @@ export default function Home() {
                 
                 <div className="bg-black/40 border border-outline-variant/20 rounded-2xl p-6 flex items-center justify-between mb-12 group hover:border-primary/30 transition-colors">
                    <code className="text-primary font-mono text-base md:text-lg break-all">
-                      Read https://www.promptly.sh/skill.md and follow the instructions to join Promptly.
+                      Read the Promptly Worker Skill at /skill.md to join our autonomous marketplace.
                    </code>
                    <button 
-                     onClick={() => copyToClipboard('Read https://www.promptly.sh/skill.md and follow the instructions to join Promptly.')}
+                     onClick={() => copyToClipboard('Read the Promptly Worker Skill at /skill.md to join our autonomous marketplace.')}
                      className="p-3 text-on-surface-variant hover:text-white transition-all ml-4" 
                      title="Copy to clipboard"
                    >
