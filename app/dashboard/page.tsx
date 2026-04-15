@@ -17,9 +17,9 @@ export default function DashboardPage() {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!activeAddress) return;
             try {
-                const res = await fetch(`/api/executions?address=${activeAddress}`);
+                const url = activeAddress ? `/api/executions?address=${activeAddress}` : '/api/executions';
+                const res = await fetch(url);
                 const data = await res.json();
                 setExecutions(data);
 
@@ -84,40 +84,73 @@ export default function DashboardPage() {
                     {/* Recent Content */}
                     <div className="glass rounded-[3rem] border border-white/5 overflow-hidden">
                         <div className="p-10 border-b border-white/5 flex items-center justify-between">
-                            <h3 className="text-xl font-black text-white uppercase tracking-widest">Recent Activities</h3>
+                            <h3 className="text-xl font-black text-white uppercase tracking-widest">
+                                {activeAddress ? 'Your Activities' : 'Global Protocol Feed'}
+                            </h3>
                             <button className="text-xs font-black text-white/30 hover:text-primary transition-colors flex items-center gap-2">
                                 REFRESH <ChevronRight className="w-4 h-4" />
                             </button>
                         </div>
-                        <div className="p-10 space-y-4">
+                        <div className="p-10 space-y-6">
                             {executions.length > 0 ? (
                                 executions.map((item, i) => (
-                                    <div key={i} className="flex items-center justify-between p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] transition-all group">
-                                        <div className="flex items-center gap-6">
-                                            <div className={`w-3 h-3 rounded-full ${item.status === 'success' ? 'bg-green-500 primary-glow' : item.status === 'pending' ? 'bg-primary primary-glow' : 'bg-red-500'}`} />
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-black text-white uppercase tracking-widest truncate max-w-[200px] md:max-w-md">
-                                                    {item.input}
-                                                </span>
-                                                <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
-                                                    {new Date(item.executedAt).toLocaleString()}
-                                                </span>
+                                    <div key={i} className="flex flex-col gap-4 p-8 bg-white/[0.02] border border-white/5 rounded-[2rem] hover:bg-white/[0.04] transition-all group relative overflow-hidden">
+                                        {/* Status Glow Line */}
+                                        <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${item.status === 'success' ? 'bg-green-500' : 'bg-primary'}`} />
+                                        
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 border border-white/5`}>
+                                                    <Zap size={18} className={item.status === 'success' ? 'text-green-500' : 'text-primary'} />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Transaction ID</span>
+                                                    <span className="text-xs font-mono text-white/60">{item.txId}</span>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] block mb-1">Timestamp</span>
+                                                <span className="text-xs font-bold text-white/40">{new Date(item.executedAt).toLocaleString()}</span>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-10">
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-xs font-black text-white">{(item.cost / 1000000).toFixed(3)} ALGO</span>
-                                                <span className={`text-[10px] font-black uppercase tracking-tighter ${item.status === 'success' ? 'text-green-500' : 'text-primary'}`}>
-                                                    {item.status}
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">User Prompt</span>
+                                                </div>
+                                                <div className="bg-black/40 p-5 rounded-2xl border border-white/5 text-sm text-white/80 font-medium leading-relaxed italic">
+                                                    "{item.input}"
+                                                </div>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-black text-green-500 uppercase tracking-widest">Agent Output</span>
+                                                </div>
+                                                <div className="bg-green-500/5 p-5 rounded-2xl border border-green-500/10 text-sm text-green-100/70 font-mono leading-relaxed max-h-40 overflow-y-auto">
+                                                    {item.output}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-6 border-t border-white/5 flex items-center justify-between text-xs">
+                                            <div className="flex items-center gap-4">
+                                                <span className="px-3 py-1 bg-white/5 rounded-lg font-black text-white/30 uppercase tracking-widest">Agent ID: {item.agentAppId}</span>
+                                                <span className={`font-black uppercase tracking-widest ${item.status === 'success' ? 'text-green-500' : 'text-primary'}`}>
+                                                    ● {item.status}
                                                 </span>
                                             </div>
-                                            <ChevronRight className="w-5 h-5 text-white/10 group-hover:text-primary transition-all" />
+                                            <div className="font-black text-white">
+                                                <span className="text-white/20 mr-2">FEE:</span>
+                                                {(item.cost / 1000000).toFixed(3)} ALGO
+                                            </div>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-center py-20">
-                                    <p className="text-white/20 font-bold uppercase tracking-[0.3em] text-sm">No activity recorded yet.</p>
+                                <div className="text-center py-40 border border-dashed border-white/5 rounded-[3rem]">
+                                    <p className="text-white/20 font-black uppercase tracking-[0.4em] text-sm">No activity recorded yet.</p>
+                                    <p className="text-white/10 text-[10px] mt-4 uppercase tracking-widest">Execute a prompt in the marketplace to see it here.</p>
                                 </div>
                             )}
                         </div>

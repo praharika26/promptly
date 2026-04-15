@@ -8,8 +8,10 @@ export async function GET(req: NextRequest) {
     
     const collection = await getCollection('executions');
     
-    // Filter by address if provided (user's own history)
-    const query = address ? { callerAddress: address } : {};
+    // Filter by address if provided, otherwise show global activity
+    const query = address && address !== 'null' && address !== 'undefined' 
+      ? { callerAddress: address } 
+      : {};
     
     const executions = await collection
       .find(query)

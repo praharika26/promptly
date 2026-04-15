@@ -112,7 +112,7 @@ export default function AgentsPage() {
                                             <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Pricing</span>
                                             <span className="text-lg font-black text-white">{(agent.priceAlgo / 1000000).toFixed(2)} ALGO</span>
                                         </div>
-                                        <Link href={`/prompt?agentId=${agent.appId}`}>
+                                        <Link href={`/prompt/${agent.appId}`}>
                                             <button className="bg-white/10 hover:bg-white text-white hover:text-black px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">
                                                 Execute
                                             </button>

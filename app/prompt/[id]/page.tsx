@@ -25,7 +25,7 @@ export default function AgentPromptPage() {
         const res = await fetch(`/api/agents`);
         const data = await res.json();
         // Finds the matching agent by ID
-        const found = data.agents?.find((a: any) => a.appId.toString() === agentId);
+        const found = data.find((a: any) => a.appId.toString() === agentId);
         if (found) {
           setAgent(found);
         }

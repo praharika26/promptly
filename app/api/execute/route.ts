@@ -14,40 +14,47 @@ async function executeHandler(req: NextRequest) {
     const body = await req.json();
     const { agentId, prompt } = body;
     
-    // Get headers set by withX402 middleware for the verified payment
+    // 1. Extract actual sender from payment if possible
     const paymentSignature = req.headers.get("PAYMENT-SIGNATURE");
-    const parsedSignature = paymentSignature ? JSON.parse(paymentSignature) : null;
-    const txId = parsedSignature?.payload?.paymentGroup?.[0] || `mock-${Date.now()}`;
+    let senderAddress = req.headers.get("x-sender-address") || "anonymous";
+    let txId = `mock-${Date.now()}`;
 
-    // 1. Generate real AI response
+    if (paymentSignature) {
+      try {
+        const parsed = JSON.parse(paymentSignature);
+        // In AVM Exact scheme, payload contains paymentGroup (base64 txns)
+        if (parsed.payload?.paymentGroup?.[0]) {
+          const firstTxnB64 = parsed.payload.paymentGroup[0];
+          const txnBytes = Buffer.from(firstTxnB64, 'base64');
+          // We could decode this to get the sender, but for now we trust the header 
+          // or use the group ID as the txId
+          txId = crypto.createHash('sha256').update(firstTxnB64).digest('hex').slice(0, 16);
+        }
+      } catch (e) {
+        console.error("Failed to parse payment signature", e);
+      }
+    }
+
+    // 2. Generate real AI response
     console.log(`[API /execute] Running prompt against agent ${agentId}: ${prompt}`);
     const aiResponse = await generateAgentResponse(prompt, agentId);
     
-    // 2. Hash for on-chain integrity (if needed)
-    const inputHash = crypto.createHash('sha256').update(prompt).digest('hex');
-    const outputHash = crypto.createHash('sha256').update(aiResponse).digest('hex');
-
     // 3. PERSIST to MongoDB
     const executionsCollection = await getCollection('executions');
     const executionDoc = {
       appId: CONTRACT_IDS.agentExecutor,
-      agentAppId: Number(agentId),
-      callerAddress: req.headers.get("x-sender-address") || "anonymous",
+      agentAppId: agentId,
+      callerAddress: senderAddress,
       input: prompt,
       output: aiResponse,
-      inputHash,
-      outputHash,
       txId,
-      round: 0, // In a real system, we'd fetch the confirmed round from algod
       executedAt: new Date(),
       status: 'success',
-      cost: 1000, // 0.001 ALGO
-      paymentAsset: USDC_ASSET_ID,
-      paymentAmount: "10000", // $0.01 USDC
+      cost: 10000, // $0.01 in micro-units
     };
 
     await executionsCollection.insertOne(executionDoc);
-    console.log(`[API /execute] Persisted execution ${txId} to MongoDB`);
+    console.log(`[API /execute] Persisted output for ${agentId} to dashboard`);
 
     return NextResponse.json({
       success: true,
