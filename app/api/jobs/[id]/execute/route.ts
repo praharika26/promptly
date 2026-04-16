@@ -118,7 +118,7 @@ export async function POST(
     const executionsCollection = await getCollection('executions');
     const executionDoc = {
       jobId,
-      agentId: job.agentId || 'worker-agent',
+      agentAppId: job.agentId || 'worker-agent',
       agentAddress: workerAddress,
       callerAddress: request.headers.get("x-sender-address") || "anonymous",
       input: job.prompt,
@@ -129,7 +129,7 @@ export async function POST(
       executedAt: new Date(),
       status: 'success',
       paymentAsset: USDC_ASSET_ID,
-      paymentAmount: PRICE_AMOUNT,
+      cost: parseInt(PRICE_AMOUNT),
       paymentTxId: txId,
     };
 

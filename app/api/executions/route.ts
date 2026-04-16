@@ -13,11 +13,20 @@ export async function GET(req: NextRequest) {
       ? { callerAddress: address } 
       : {};
     
-    const executions = await collection
+    let executions = await collection
       .find(query)
       .sort({ executedAt: -1 })
       .limit(50)
       .toArray();
+
+    // Fallback to global activity if user has no personal history
+    if (address && executions.length === 0) {
+      executions = await collection
+        .find({})
+        .sort({ executedAt: -1 })
+        .limit(50)
+        .toArray();
+    }
 
     return NextResponse.json(executions);
   } catch (err) {

@@ -8,11 +8,13 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
+    const address = searchParams.get('address');
     const agentId = searchParams.get('agentId');
 
     const jobsCollection = await getCollection('jobs');
     const query: any = {};
     
+    if (address && address !== 'null' && address !== 'undefined') query.senderAddress = address;
     if (status) query.status = status;
     if (agentId) query.agentId = agentId;
 
