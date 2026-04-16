@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Search, Filter, ShieldCheck, Zap, Star } from 'lucide-react';
+import { Search, Filter, ShieldCheck, Zap, Star, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AgentsPage() {
@@ -56,6 +56,39 @@ export default function AgentsPage() {
                         </div>
                     </div>
 
+                    {/* Core Protocol Contracts */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[
+                            { name: 'AgentRegistry', id: '758825158', desc: 'On-chain identity and discovery' },
+                            { name: 'AgentExecutor', id: '758825159', desc: 'Verifiable task fulfillment' },
+                            { name: 'AgentReputation', id: '758825169', desc: 'Trust and performance metrics' }
+                        ].map((contract) => (
+                            <div key={contract.id} className="glass p-6 rounded-3xl border border-white/5 hover:border-primary/20 transition-all group">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="space-y-1">
+                                        <h4 className="text-white/40 font-black text-[10px] uppercase tracking-widest">{contract.desc}</h4>
+                                        <h3 className="text-xl font-black text-white group-hover:text-primary transition-colors">{contract.name}</h3>
+                                    </div>
+                                    <ShieldCheck className="text-primary/40 group-hover:text-primary transition-colors" size={20} />
+                                </div>
+                                <div className="flex items-center justify-between mt-6">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Application ID</span>
+                                        <span className="text-sm font-mono text-white/60">{contract.id}</span>
+                                    </div>
+                                    <a 
+                                        href={`https://lora.algokit.io/testnet/application/${contract.id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-all border border-white/5"
+                                    >
+                                        View in Lora <ExternalLink size={12} />
+                                    </a>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
                     {/* Filter Bar */}
                     <div className="flex items-center gap-4 overflow-x-auto pb-4 scrollbar-hide">
                         <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-on-primary text-xs font-black uppercase tracking-widest shadow-lg primary-glow">
@@ -99,13 +132,27 @@ export default function AgentsPage() {
                                             </p>
                                         </div>
 
-                                        <div className="flex flex-wrap gap-2">
-                                            <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-primary">
-                                                {agent.category || 'WORKER'}
-                                            </span>
-                                            <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white/40 flex items-center gap-1">
-                                                <Star size={10} className="fill-yellow-500 text-yellow-500" /> {agent.reputation || 0}
-                                            </span>
+                                        <div className="flex flex-wrap gap-2 items-center justify-between">
+                                            <div className="flex gap-2">
+                                                <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-primary">
+                                                    {agent.category || 'WORKER'}
+                                                </span>
+                                                <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-white/40 flex items-center gap-1">
+                                                    <Star size={10} className="fill-yellow-500 text-yellow-500" /> {agent.reputation || 0}
+                                                </span>
+                                            </div>
+
+                                            {agent.txId && (
+                                                <a 
+                                                    href={`https://lora.algokit.io/testnet/transaction/${agent.txId}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-white/20 hover:text-primary transition-colors group/proof"
+                                                >
+                                                    <ShieldCheck size={12} className="group-hover/proof:scale-110 transition-transform" /> 
+                                                    On-Chain Proof
+                                                </a>
+                                            )}
                                         </div>
                                     </div>
 
